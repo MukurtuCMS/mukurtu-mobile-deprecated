@@ -91,7 +91,7 @@
     
     DLog(@"Main view did load");
 
-    
+    //TODO: reachability is not reliable and have been disabled as now
     //DLog(@"If we have a base url, reset http client to start reachability test");
     //[[MukurtuSession sharedSession] resetClientReachabilityTest];
     
@@ -115,7 +115,7 @@
         {
             DLog(@"Created Launchlock.plist > %@", lockfile);
             //show splascreen only if writing lockfile succeded,
-            //this avoid presenting splashcreen everytime for disk write problems (device full?)
+            //this avoid presenting splashcreen everytime if writing lockfile fails
             
             UIStoryboard *sharedStoryboard = [UIStoryboard storyboardWithName:@"sharedUI" bundle:[NSBundle mainBundle]];
             SplashScreenViewController *splashScreenController = [sharedStoryboard instantiateViewControllerWithIdentifier:@"SplashScreenViewController"];
@@ -137,24 +137,10 @@
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
-
-/*
- - (void)viewWillAppear:(BOOL)animated
- {
- DLog(@"Main view will appear");
- 
- [super viewWillAppear:animated];
- 
- }*/
-
-
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    //DLog(@"Main view did appear");
-    
     AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
     
     if (self.splashScreenViewController != nil)
@@ -208,8 +194,8 @@
     }
     else
     {
+#warning customize right view controller width for different screen aspect ratio
         self.rightViewControllerWidth.constant = self.view.bounds.size.width * 0.6875   ;
-        //self.rightViewControllerWidth.constant = 704.0f;
     }
     
 }
@@ -387,14 +373,12 @@
 {
     DLog(@"Edit Poi Table pressed");
     
-    
-    
     if (![self.leftViewController isEditing])
     {
         //ignore if no poi in list
         if (![self.leftViewController.poiList count])
         {
-#warning could show an alert, to ask Coda
+            //TODO: may show an alert or visual feedback to notify upload skipping
             DLog(@"No poi in list, ignoring upload request");
         }
         else
@@ -415,15 +399,11 @@
     
     [self dismissPopoverUpload];
     
-    //some poi status could be changed or uploaded
-    //[self reloadPoiTable];
-    
     //Remove all poi uploaded with success
-#warning, could verify if poi actually are visibile on server before removing them (complex task)
+    //TODO: could verify if poi actually are visibile on server before removing them (complex task)
     NSArray *uploadedPois = [[[MukurtuSession sharedSession] uploadedPoiList] copy];
     
     DLog(@"We have uploaded %d poi with success, removing them", (int)[uploadedPois count]);
-    //DLog(@"DEBUG: uploaded poi list to remove %@", [uploadedPois description]);
 #ifdef REMOVE_POI_AFTER_UPLOAD
     [self removePoisFromArray:uploadedPois];
 #endif
@@ -434,8 +414,6 @@
                                               cancelButtonTitle:@"Ok"
                                               otherButtonTitles:nil];
     [alertView show];
-
-#warning by now canceling upload does NOT remove already uploaded pois! Only upload success will clean the list. Since user could edit already uploaded pois after cancel, this could lead to edit changes lost. Should clean uploaded poi just after upload or mark them as uploaded and scan list both after cancel and success callbacks
     
     //enabling auto lock screen
     DLog(@"Enabling screen auto lock");
@@ -478,7 +456,7 @@
     
     
     //Remove all poi uploaded with success
-#warning, could verify if poi actually are visibile on server before removing them (complex task)
+    //TODO: could verify if poi actually are visibile on server before removing them (complex task)
     NSArray *uploadedPois = [[[MukurtuSession sharedSession] uploadedPoiList] copy];
     
     DLog(@"We have uploaded %d poi with success, removing them", (int)[uploadedPois count]);
@@ -488,7 +466,6 @@
 #endif
     
     //display error message for partial upload / upload failed
-#warning check upload success and messages for any result
     [self.leftViewController showUploadResult];
     
     //enabling auto lock screen
@@ -538,17 +515,9 @@
         uploadViewController.uploadSuccessDelegate = @selector(uploadSuccesful);
         uploadViewController.uploadFailureDelegate = @selector(uploadFailed);
         
-        //FIX 2.5: added callback to handle upload job starting only *after* upload progress controller actually did load
+        //added callback to handle upload job starting only *after* upload progress controller actually did load
         uploadViewController.uploadDidLoadDelegate = @selector(uploadProgressControllerDidLoad);
         self.uploadViewController = uploadViewController;
-        
-        //FIX 2.5: instead of dismissing sync popover and overwrite with upload popover (that does not work on ios8), replace content controller of existing sync popover
-        //UIPopoverController *uploadPopover  = [[UIPopoverController alloc] initWithContentViewController:uploadViewController];
-        //uploadPopover.delegate = self;
-        //self.uploadPopoverController = uploadPopover;
-        //self.uploadPopoverController.popoverContentSize = CGSizeMake(300, 180);
-        //CGRect arrowRect = CGRectMake(self.viewToolbar.frame.size.width / 2, -8, 1, 1);
-        
         
         //should validate all poi against updated metadata
         [[MukurtuSession sharedSession] validateAllPois];
@@ -556,13 +525,7 @@
 
         [self.syncViewController reportSyncDone];
         
-        //[self.syncPopoverController dismissPopoverAnimated:NO];
-        
         DLog(@"\nPresenting upload progress popover");
-        //[self.uploadPopoverController presentPopoverFromRect:arrowRect
-        //                                              inView:self.viewToolbar
-        //                            permittedArrowDirections:UIPopoverArrowDirectionDown animated:NO];
-        
         //replace sync popover content controller with upload progress
         self.uploadPopoverController = self.syncPopoverController;
         self.uploadPopoverController.contentViewController = uploadViewController;
@@ -581,7 +544,7 @@
 
 }
 
-//FIX 2.5: added callback to handle upload job starting only *after* upload progress controller actually did load
+//added callback to handle upload job starting only *after* upload progress controller actually did load
 - (void)uploadProgressControllerDidLoad
 {
     DLog(@"Upload view controller loaded, start upload job");
@@ -601,7 +564,7 @@
     //ignore if no poi in list
     if (![self.leftViewController.poiList count])
     {
-#warning could show an alert, to ask Coda
+        //TODO: may show an alert or visual feedback to notify upload skipping
         DLog(@"No poi in list, ignoring upload request");
         return;
     }
@@ -621,7 +584,6 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    
     if (alertView.tag == kYouTubeNeededAlert)
     {
         NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
@@ -651,7 +613,7 @@
             }
     }
     //else
-    //just cancel other alert view doing nothing
+    //just cancel any other alert view
 }
 
 - (void)startUploadJob
@@ -689,16 +651,13 @@
 {
     DLog(@"User asked to cancel metadata sync");
 
-    
-
     //should interrupt mukurtu session here
     
     MukurtuSession *session = [MukurtuSession sharedSession];
     
     [session cancelMetadataSync];
     
-    
-#warning should set local flag isDismissing like mainiphone controller to dismiss popover only once!!    
+    //FIXME: could set local flag isDismissing like mainiphone controller to dismiss popover only once!!
     //dismiss popover
     [self performSelector:@selector(dismissPopoverSync) withObject:nil afterDelay:1.0];
 }
@@ -706,7 +665,6 @@
 - (void) syncCompleted
 {
     DLog(@"Session report sync completed, alert user");
-    
     
     if ([[MukurtuSession sharedSession] lastSyncSuccess])
     {
@@ -745,7 +703,6 @@
 
 - (IBAction)syncButtonPressed:(id)sender
 {
- 
     DLog(@"Sync button pressed, open action sheet");
     
     UIStoryboard *sharedStoryboard = [UIStoryboard storyboardWithName:@"sharedUI" bundle:[NSBundle mainBundle]];
@@ -762,17 +719,11 @@
 #warning hardcoded size for popover
     self.syncPopoverController.popoverContentSize = CGSizeMake(300, 180);
     
-    //UIView *buttonFrameView = [self.syncMetadataButton superview];
-    //CGRect arrowRect = buttonFrameView.frame;
-    //arrowRect.origin.y = -8.0;
-    
     CGRect arrowRect = CGRectMake(self.viewToolbar.frame.size.width / 2, -8, 1, 1);
-    
 
     [self.syncPopoverController presentPopoverFromRect:arrowRect
                                                 inView:self.viewToolbar
                               permittedArrowDirections:UIPopoverArrowDirectionDown animated:YES];
-    
     
     //Actually start metadata sync
     [[MukurtuSession sharedSession] startMetadataSyncFromDelegate:self confirmSelector:@selector(syncCompleted)];
@@ -802,6 +753,5 @@
             break;
     }
 }
-
 
 @end
