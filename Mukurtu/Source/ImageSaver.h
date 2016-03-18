@@ -22,7 +22,6 @@
 
 
 #import <Foundation/Foundation.h>
-//@class Poi;
 @class PoiMedia;
 
 @interface ImageSaver : NSObject

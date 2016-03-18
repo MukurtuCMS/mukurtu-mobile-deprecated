@@ -31,7 +31,6 @@
 	self = [super initWithIdentifier:identifier source:source destination:destination];
 	if (self) {
 		_unwinding = NO;
-//		_destinationRect = CGRectZero;
 	}
 	return self;
 }

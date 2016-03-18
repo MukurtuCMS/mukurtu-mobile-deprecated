@@ -88,10 +88,10 @@ static NSString *const kMukurtuAccountKeychainSessionValue = @"Mukurtu 2.5 Sessi
 static NSString *const kMukurtuAccountKeychainUsername = @"Mukurtu 2.5 Username";
 static NSString *const kMukurtuAccountKeychainPassword = @"Mukurtu 2.5 Password";
 
-//FIX 2.5: store CMS version in keychain
+//store CMS version in keychain
 static NSString *const kMukurtuAccountKeychainCMSVersion = @"Mukurtu 2.5 CMS Version";
 
-//FIX 2.5: store Major version lock to remove DB in old versions at first launch
+//store Major version lock to remove DB in old versions at first launch
 static NSString *const kMukurtuAccountKeychainAppMajorVersion = @"Mukurtu 2.5 App Version";
 
 #define kMukurtuBaseUrlKey @"mukurtuBaseUrl"
@@ -107,16 +107,16 @@ static NSString *const kMukurtuAccountKeychainAppMajorVersion = @"Mukurtu 2.5 Ap
 #define kMukurtuServerBaseTaxonmyTerm @"taxonomy_term"
 #define kMukurtuServerBaseTaxonmyVocabulary @"taxonomy_vocabulary"
 
-//FIX 2.5: added support for new scald services endpoint
+//added support for new scald services endpoint
 #define kMukurtuServerBaseScald @"scald"
-//FIX 2.5: added support for new groups services endpoint
+//added support for new groups services endpoint
 #define kMukurtuServerBaseGroups @"groups"
 #define kServerDontUseCustomServicesEndpointGroupsFetch NO
 
 #define kMukurtuKeywordCMSVersion1VID @"2"
 #define kMukurtuKeywordVID @"12"
 #define kMukurtuCategoryVID @"3"
-//FIX 2.5: creator and contributor taxonomy handling
+//creator and contributor taxonomy handling
 #define kMukurtuContributorVID @"4"
 #define kMukurtuCreatorVID @"5"
 
@@ -200,7 +200,7 @@ static NSString *const kMukurtuAccountKeychainAppMajorVersion = @"Mukurtu 2.5 Ap
 #define kMukurtuSharingProtocolOpenText @"Open - accessible to all site users"
 #define kMukurtuSharingProtocolCommunityText  @"Community - accessible only to group members"
 
-//FIX 2.5: added token fields for contributor and creator
+//added token fields for contributor and creator
 #define kTokenFieldTableRowMaxHeight 200.0
 
 //Metadata sync

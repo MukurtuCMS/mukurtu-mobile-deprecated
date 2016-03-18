@@ -33,7 +33,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 
-//#define kMediaPhotoJPGCompression 0.7
 #define kMediaPhotoJPGCompression 0.85
 
 #define kMukurtuAudioFileBackupPrefix @"AUDIOBAK"
@@ -55,17 +54,16 @@
     
     NSString *filteredPrefix = [[prefix componentsSeparatedByCharactersInSet:[[NSCharacterSet alphanumericCharacterSet] invertedSet]] componentsJoinedByString:@""];
     
-    //NSInteger  timestamp = (NSInteger) [[NSDate date] timeIntervalSince1970];
 	do {
 		// iterate until a name does not match an existing file
         i++;
-        //path = [NSString stringWithFormat:@"%@/Documents/%ld_%03d_pic.jpg", NSHomeDirectory(), (long)timestamp, i];
-        //thumb = [NSString stringWithFormat:@"%@/Documents/%ld_%03d_thumb.jpg", NSHomeDirectory(), (long)timestamp, i];
         
         path = [NSString stringWithFormat:@"Documents/%@_%@_pic.jpg", filteredPrefix, uniqueId];
         thumb = [NSString stringWithFormat:@"Documents/%@_%@_thumb.jpg", filteredPrefix, uniqueId];
         video = [NSString stringWithFormat:@"Documents/%@_%@_video.mp4", filteredPrefix, uniqueId];
         audio = [NSString stringWithFormat:@"Documents/%@_%@_audio.m4a", filteredPrefix, uniqueId];
+        //MARK: if you want to support audio playback on some drupal player you could change audio extension to mp4
+        //      (anyway this will handle uploaded audio files as video media)
         //audio = [NSString stringWithFormat:@"Documents/%@_%@_audio.mp4", filteredPrefix, uniqueId];
 	} while (([[NSFileManager defaultManager] fileExistsAtPath:path]) ||
              ([[NSFileManager defaultManager] fileExistsAtPath:thumb])||
@@ -97,7 +95,6 @@
     else
     {
         //default key for resize factor tag should be present, anyway defaults to full res
-
         DLog(@"Preferences key for image resize factor not present (firs run?), defaults to full res");
         resizePostfix = kMukurtuResizedImagePostfixFull;
         
@@ -137,7 +134,7 @@
                     {
                         //resize image to 1024x768
 
-                        //FIX 2.5: check portrait or landscape form factor
+                        //check portrait or landscape form factor
                         if (image.size.width > image.size.height)
                         {
                             //landscape
@@ -206,7 +203,6 @@
     NSMutableDictionary *mutableMetadata = [metadata mutableCopy];
     
 #warning image compression could be a preferences key not an hardcoded macro
-    //[mutableMetadata setObject:@(1.0) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
     [mutableMetadata setObject:@(kMediaPhotoJPGCompression) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
     
     // Create an image destination.
@@ -258,7 +254,7 @@
         newMedia.timestamp = [NSDate date];
         newMedia.type = @"photo";
         
-        //FIX 2.5: store image path relative to home directory!
+        //store image path relative to home directory!
         newMedia.path = filepath;
         newMedia.thumbnail = thumbpath;
         
@@ -295,7 +291,6 @@
      
 }
 
-//+ (BOOL)saveImageToDisk:(UIImage*)image andToMedia:(PoiMedia*)media withNamePrefix:(NSString *)prefix
 + (PoiMedia *) saveImageToDisk:(UIImage *)image andCreateMediawithNamePrefix:(NSString *)prefix
 {
     
@@ -325,9 +320,12 @@
 	NSString *name    = [ImageSaver findUniquePicBasename:prefix];
 
     
-    //FIX 2.5: create a copy of mic icon in documents directory (just once) to use relative path for thumbnail.
+    //create a copy of mic icon in documents directory (just once) to use relative path for thumbnail.
     //abs path are not allowed in ios8
     NSString *filepath	= [NSString stringWithFormat:@"%@_audio.m4a", name];
+    
+    //MARK: if you want to support audio playback on some drupal player you could change audio extension to mp4
+    //      (anyway this will handle uploaded audio files as video media)
     //NSString *filepath	= [NSString stringWithFormat:@"%@_audio.mp4", name];
     
     if (![manager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:kMicThumbIconPath]])
@@ -396,8 +394,6 @@
     
     UIImage *bigThumbImage = [ImageSaver createVideoThumbnailFromFile:fileFullPath];
     
-    
-    //UIImage *watermarkImage = [UIImage imageNamed:@"video-play-icon.png"];
     UIImage *watermarkImage = [UIImage imageNamed:@"video-play-256.png"];
     
     UIGraphicsBeginImageContext(bigThumbImage.size);
@@ -406,19 +402,14 @@
     UIImage *bigThumbImageWatermark = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    //NSData *imgBigThumbData  = UIImageJPEGRepresentation(bigThumbImage, kMediaPhotoJPGCompression);
     NSData *imgBigThumbData  = UIImageJPEGRepresentation(bigThumbImageWatermark, kMediaPhotoJPGCompression);
     
-    //UIImage *thumbnail = [bigThumbImage thumbnailImage:128 transparentBorder:0 cornerRadius:0 interpolationQuality:kCGInterpolationHigh];
     UIImage *backgroundImage = [bigThumbImage thumbnailImage:128 transparentBorder:0 cornerRadius:0 interpolationQuality:kCGInterpolationHigh];
     
     UIImage *watermarkImageThumb = [UIImage imageNamed:@"icon_video_CROP.png"];
     
     UIGraphicsBeginImageContext(backgroundImage.size);
     [backgroundImage drawInRect:CGRectMake(0, 0, backgroundImage.size.width, backgroundImage.size.height)];
-    
-    //bottom right placement
-    //[watermarkImageThumb drawInRect:CGRectMake(backgroundImage.size.width - watermarkImageThumb.size.width*0.5, backgroundImage.size.height - watermarkImageThumb.size.height*0.5, watermarkImageThumb.size.width*0.5, watermarkImageThumb.size.height*0.5)];
     
     //center placement
 #define kOffset 5
@@ -443,8 +434,6 @@
         
         newMedia.path = filepath;
         newMedia.thumbnail = thumbpath;
-        //newMedia.path = fileFullPath;
-        //newMedia.thumbnail = thumbFullPath;
         
 #ifdef DEBUG
         // DEBUG Show the current contents of the documents folder
@@ -482,7 +471,6 @@
     //if media is audio should keep a local copy
     if ([media.type isEqualToString:@"audio"])
     {
-        //FIXME 2.5
         DLog(@"Keep local backup copy of audio before deleting media");
         
         NSString *backupPathDir = [media.path stringByDeletingLastPathComponent];
@@ -490,7 +478,6 @@
         NSString *backupPath = [backupPathDir stringByAppendingPathComponent:backupPathFilename];
         
         //move audio file to backup
-        //if ([fileManager moveItemAtPath:media.path toPath:backupPath error:&error])
         if ([fileManager moveItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:media.path]
                                  toPath:[NSHomeDirectory() stringByAppendingPathComponent:backupPath] error:&error])
         {
@@ -505,12 +492,10 @@
     else
     {
         DLog(@"Removing file %@", media.path);
-        //if (![fileManager removeItemAtPath:media.path error:&error])
         if (![fileManager removeItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:media.path] error:&error])
             DLog(@"Deleting file error %@, %@", error, [error userInfo]);
         
         DLog(@"Removing file %@", media.thumbnail);
-        //if (![fileManager removeItemAtPath:media.thumbnail error:&error])
         if (![fileManager removeItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:media.thumbnail] error:&error])
             DLog(@"Deleting file error %@, %@", error, [error userInfo]);
         
@@ -546,10 +531,8 @@
     AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoUrl options:nil];
     AVAssetImageGenerator *gen = [[AVAssetImageGenerator alloc] initWithAsset:asset];
     gen.appliesPreferredTrackTransform = YES;
-    //CMTime time = CMTimeMakeWithSeconds(0.0, 600);
     CMTime time = CMTimeMake(1, 1);
     NSError *error = nil;
-    //CMTime actualTime;
     
     CGImageRef image = [gen copyCGImageAtTime:time actualTime:NULL error:&error];
     
@@ -591,7 +574,7 @@
     return bigThumbPath;
 }
 
-//FIX 2.5: refactor for consistency and fixes a bug when importing portrait images from photoroll
+//NOTE: refactored for consistency and fixes a bug when importing portrait images from photoroll
 //orientation will be forced up for all photos (since we redraw them accordingly in canvas)
 + (NSMutableDictionary *)extractMetadataFromMediaInfo:(NSDictionary *)info forceOrientationUp:(BOOL)forceUp
 {
