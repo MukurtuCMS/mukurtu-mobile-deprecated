@@ -8,7 +8,7 @@
 
 #import "TOMSCoreDataCollectionViewController.h"
 
-//FIX 2.5: removed custom TOMS Core Data Manager (conflicts with Magical Record) and uses Magical Record to access managedContext
+//MARK: removed custom TOMS Core Data Manager (conflicts with Magical Record) and uses Magical Record to access managedContext
 //#import "TOMSCoreDataManager.h"
 
 
@@ -31,14 +31,14 @@
 
 - (NSManagedObjectContext *)managedObjectContext
 {
-    //FIX 2.5: removed custom TOMS Core Data Manager (conflicts with Magical Record) and uses Magical Record to access managedContext
+    //MARK: removed custom TOMS Core Data Manager (conflicts with Magical Record) and uses Magical Record to access managedContext
     //return [TOMSCoreDataManager managerForModelName:self.modelName].managedObjectContext;
     return [NSManagedObjectContext MR_defaultContext];
 }
 
 - (void)saveContext
 {
-    //FIX 2.5: removed custom TOMS Core Data Manager (conflicts with Magical Record) and uses Magical Record to access managedContext
+    //MARK: removed custom TOMS Core Data Manager (conflicts with Magical Record) and uses Magical Record to access managedContext
     //[TOMSCoreDataManager saveContext:self.managedObjectContext];
     DLog(@"Saving core data context - TOMS");
     [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];

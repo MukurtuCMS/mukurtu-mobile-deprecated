@@ -51,13 +51,6 @@
 //Get a list of videos uploaded by user
 - (void)getUploadedPlaylist;
 
-//Upload a video
-//- (void)uploadVideoWithTitle:(NSString *)title
-//                        description:(NSString *)description
-//                 commaSeperatedTags:(NSString *)tags
-//                            andPath:(NSString *)path;
-
-
 - (void)uploadVideoWithTitle:(NSString *)title description:(NSString *)description commaSeperatedTags:(NSString *)tags andMedia:(PoiMedia *)media;
 
 - (void)cancelAllCurrentUploads;

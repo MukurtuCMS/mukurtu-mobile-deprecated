@@ -21,15 +21,7 @@
 @property (strong) GTLServiceTicket *playlistItemListTicket;
 @property (strong) GTLYouTubePlaylistItemListResponse *playlistItemList;
 
-
-//@property (strong) GTLServiceTicket *uploadFileTicket;
-
 @property (strong) NSMutableArray *uploadFileTickets;
-
-//@property (strong) NSString* videoTitle;
-//@property (strong) NSString* videoDescription;
-//@property (strong) NSString* videoTags;
-//@property (strong) NSString* videoPath;
 
 @property (strong) NSString* clientID;
 @property (strong) NSString* clientSecret;
@@ -153,7 +145,6 @@ static NSString* kKeychainItemName = @"MukurtuYouTubeToken";
     _youTubeService.shouldFetchNextPages = YES;
     _youTubeService.retryEnabled = YES;
     
-#warning should test shouldFetchInBackground flag to enable background uploads
     //enable backround uploads
     _youTubeService.shouldFetchInBackground = YES;
     
@@ -195,8 +186,6 @@ static NSString* kKeychainItemName = @"MukurtuYouTubeToken";
                                                                                       finishedSelector:@selector(viewController:finishedWithAuth:error:)];
     
     [_delegate showAuthenticationViewController:viewController];
-//    [_currentViewController presentViewController:viewController animated:YES completion:nil];
-//    [_currentViewController.navigationController pushViewController:viewController animated:YES];
 }
 
 - (void)getChannelList {
@@ -255,40 +244,6 @@ static NSString* kKeychainItemName = @"MukurtuYouTubeToken";
     }
 }
 
-/*
-- (void)prepareUploadVideo {
-    
-    // Status.
-    GTLYouTubeVideoStatus *status = [GTLYouTubeVideoStatus object];
-    //status.privacyStatus = @"private";
-   
-#warning fix unlisted video flag based on settings
-    status.privacyStatus = @"unlisted";
-    
-    // Snippet.
-    GTLYouTubeVideoSnippet *snippet = [GTLYouTubeVideoSnippet object];
-    snippet.title = _videoTitle;
-    if ([_videoDescription length] > 0) {
-        snippet.descriptionProperty = _videoDescription;
-    }
-    if ([_videoTags length] > 0) {
-        snippet.tags = [_videoTags componentsSeparatedByString:@","];
-    }
-//    if ([_uploadCategoryPopup isEnabled]) {
-//        NSMenuItem *selectedCategory = [_uploadCategoryPopup selectedItem];
-//        snippet.categoryId = [selectedCategory representedObject];
-//    }
-    
-    GTLYouTubeVideo *video = [GTLYouTubeVideo object];
-    video.status = status;
-    video.snippet = snippet;
-    
-    [self uploadVideoWithVideoObject:video
-             resumeUploadLocationURL:nil];
-}
- */
-
-
 - (void)uploadVideoWithTitle:(NSString *)title description:(NSString *)description commaSeperatedTags:(NSString *)tags andMedia:(PoiMedia *)media
 {
     
@@ -318,7 +273,6 @@ static NSString* kKeychainItemName = @"MukurtuYouTubeToken";
     //Video metadata
     // Status.
     GTLYouTubeVideoStatus *status = [GTLYouTubeVideoStatus object];
-    //status.privacyStatus = @"private";
     
     //default key for unlisted should be present, anyway defaults to unlisted video
     NSString *privacyStatus = @"unlisted";
@@ -345,10 +299,6 @@ static NSString* kKeychainItemName = @"MukurtuYouTubeToken";
     if ([tags length] > 0) {
         snippet.tags = [tags componentsSeparatedByString:@";"];
     }
-    //    if ([_uploadCategoryPopup isEnabled]) {
-    //        NSMenuItem *selectedCategory = [_uploadCategoryPopup selectedItem];
-    //        snippet.categoryId = [selectedCategory representedObject];
-    //    }
     
     GTLYouTubeVideo *video = [GTLYouTubeVideo object];
     video.status = status;
@@ -364,7 +314,6 @@ static NSString* kKeychainItemName = @"MukurtuYouTubeToken";
     DLog(@"Canceling all current upload to youtube");
     
     //fixed crash while fast enumerating
-    
     
     for (GTLServiceTicket *ticket in self.uploadFileTickets)
     {
@@ -382,8 +331,6 @@ static NSString* kKeychainItemName = @"MukurtuYouTubeToken";
     {
         [self.uploadFileTickets removeObject:ticket];
     }
-    
-    //ticket = nil;
 }
 
 
@@ -392,8 +339,7 @@ static NSString* kKeychainItemName = @"MukurtuYouTubeToken";
     
     NSString *filename = [media.path lastPathComponent];
     
-    //FIX 2.5: uses relative path to home directory for ios8 compatibility
-    //NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingAtPath:media.path];
+    //uses relative path to home directory for ios8 compatibility
     NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingAtPath:[NSHomeDirectory() stringByAppendingPathComponent:media.path]];
     
     if (fileHandle) {
@@ -456,6 +402,7 @@ static NSString* kKeychainItemName = @"MukurtuYouTubeToken";
             }
         };
         
+        //FIXME: resuming not implemented
         // To allow restarting after stopping, we need to track the upload location
         // URL.
         //
@@ -486,7 +433,7 @@ static NSString* kKeychainItemName = @"MukurtuYouTubeToken";
                  error:(NSError *)error {
     
     
-    //FIX 2.5: fixed bug in youtubelogin, auth token should be saved BEFORE reporting to delegate!
+    //fixed bug in youtubelogin, auth token should be saved BEFORE reporting to delegate!
     //If no error, assign to instance variable
     if (error == nil) {
         _youTubeService.authorizer = auth;

@@ -7,7 +7,7 @@
 //
 
 
-//FIX 2.5: removed custom TOMS Core Data Manager (conflicts with Magical Record) and uses Magical Record to access managedContext
+//MARK: removed custom TOMS Core Data Manager (conflicts with Magical Record) and uses Magical Record to access managedContext
 //#import "TOMSCoreDataManager.h"
 
 #import "TOMSCoreDataFetchController.h"
@@ -256,7 +256,7 @@
 }
 
 
-//FIX 2.5: removed custom TOMS Core Data Manager (conflicts with Magical Record) and uses Magical Record to access managedContext
+//MARK: removed custom TOMS Core Data Manager (conflicts with Magical Record) and uses Magical Record to access managedContext
 #pragma mark - NSFetchedResultsControllerDelegate
 //- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
 //{
