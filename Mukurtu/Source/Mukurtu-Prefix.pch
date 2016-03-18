@@ -1,0 +1,267 @@
+//
+//  Prefix header
+//
+//MukurtuMobile
+//Mukurtu Mobile is a mobile authoring tool for Mukurtu CMS, a digital
+//heritage management system designed with the needs of indigenous
+//communities in mind.
+//http://mukurtumobile.org/
+//Copyright (C) 2012-2016  CoDA https://codifi.org
+//
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#import <Availability.h>
+
+
+#ifndef __IPHONE_3_0
+#warning "This project uses features only available in iOS SDK 3.0 and later."
+#endif
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+    #import <Foundation/Foundation.h>
+    #import <CoreData/CoreData.h>
+
+    //for reachability
+    #import <SystemConfiguration/SystemConfiguration.h>
+    #import <MobileCoreServices/MobileCoreServices.h>
+
+//    #define MR_SHORTHAND
+   #import "CoreData+MagicalRecord.h"
+#endif
+
+////////////CUSTOM GLOBAL MACROS//////////////
+#pragma mark CUSTOM GLOBAL MACROS
+
+#define REMOVE_POI_AFTER_UPLOAD YES
+
+#ifdef DEBUG
+#define DLog( s, ... ) NSLog( @"<%p %@:(%d)> %@", self, [[NSString stringWithUTF8String:__FILE__] lastPathComponent], __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__] )
+#else
+#define DLog( s, ... )
+#endif
+
+#ifdef DEBUG
+#define DLogBlock( s, ... ) NSLog( @"<BLOCK %@:(%d)> %@", [[NSString stringWithUTF8String:__FILE__] lastPathComponent], __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__] )
+#else
+#define DLogBlock( s, ... )
+#endif
+
+#define SuppressPerformSelectorLeakWarning(Stuff) \
+do { \
+_Pragma("clang diagnostic push") \
+_Pragma("clang diagnostic ignored \"-Warc-performSelector-leaks\"") \
+Stuff; \
+_Pragma("clang diagnostic pop") \
+} while (0)
+
+
+////global colors
+#pragma mark - global colors
+
+#define RGB(r, g, b) [UIColor colorWithRed:(float)r / 255.0 green:(float)g / 255.0 blue:(float)b / 255.0 alpha:1.0]
+#define RGBA(r, g, b, a) [UIColor colorWithRed:(float)r / 255.0 green:(float)g / 255.0 blue:(float)b / 255.0 alpha:a]
+
+#define kUIColorDarkBarBackground RGB(33,33,33)
+#define kUIColorDarkGrayBackground RGB(50,50,50)
+#define kUIColorMediumGrayBackground RGB(146,146,146)
+#define kUIColorMediumLightGrayBackground RGB(192,192,192)
+#define kUIColorLightGrayBackground RGB(245,245,245)
+#define kUIColorOrange RGB(218,120,36)
+
+
+////Session and keychain keys
+static NSString *const kMukurtuAccountKeychainSessionName = @"Mukurtu 2.5 Session Name";
+static NSString *const kMukurtuAccountKeychainSessionValue = @"Mukurtu 2.5 Session Value";
+
+static NSString *const kMukurtuAccountKeychainUsername = @"Mukurtu 2.5 Username";
+static NSString *const kMukurtuAccountKeychainPassword = @"Mukurtu 2.5 Password";
+
+//FIX 2.5: store CMS version in keychain
+static NSString *const kMukurtuAccountKeychainCMSVersion = @"Mukurtu 2.5 CMS Version";
+
+//FIX 2.5: store Major version lock to remove DB in old versions at first launch
+static NSString *const kMukurtuAccountKeychainAppMajorVersion = @"Mukurtu 2.5 App Version";
+
+#define kMukurtuBaseUrlKey @"mukurtuBaseUrl"
+#define kMukurtuStoredLoggedInStatus @"MukurtuUserIsLoggedIn"
+
+#define kMukurtuServerBaseUrl @"http://mukurtumobile.org/"
+#define kMukurtuServerEndpoint @"app"
+#define kMukurtuServerBaseNode @"node"
+#define kMukurtuServerBaseComment @"comment"
+#define kMukurtuServerBaseUser @"user"
+#define kMukurtuServerBaseFile @"file"
+#define kMukurtuServerBaseView @"views"
+#define kMukurtuServerBaseTaxonmyTerm @"taxonomy_term"
+#define kMukurtuServerBaseTaxonmyVocabulary @"taxonomy_vocabulary"
+
+//FIX 2.5: added support for new scald services endpoint
+#define kMukurtuServerBaseScald @"scald"
+//FIX 2.5: added support for new groups services endpoint
+#define kMukurtuServerBaseGroups @"groups"
+#define kServerDontUseCustomServicesEndpointGroupsFetch NO
+
+#define kMukurtuKeywordCMSVersion1VID @"2"
+#define kMukurtuKeywordVID @"12"
+#define kMukurtuCategoryVID @"3"
+//FIX 2.5: creator and contributor taxonomy handling
+#define kMukurtuContributorVID @"4"
+#define kMukurtuCreatorVID @"5"
+
+#define kMukurtuServerCSRFTokenRequestEndpoint @"services/session/token"
+
+#define kMukurtuServerDemoCredentialsUser @"demo"
+#define kMukurtuServerDemoCredentialsPassword @"demo"
+#define kMukurtuServerDemoCredentialsBaseUrl @"http://mukurtumobile.org/"
+
+#define kMukurtuServerAnalyticsSuccesfulLoginReportUrl @"http://www.mukurtumobile.org/?utm_source=mukurtumobileExternalLogin&utm_medium="
+
+////Web urls
+#pragma mark - Web URLs
+
+#define kLearnMoreButtonUrl @"http://www.mukurtumobile.org?utm_source=mukurtumobile"
+
+//safari links in slides/help screens
+#define kSafariLinkMukurtuCMStag 0
+#define kSafariLinkMukurtuCMSurl @"http://www.mukurtu.org?utm_source=mukurtumobile"
+#define kSafariLinkCoDAtag 1
+#define kSafariLinkCoDAurl @"http://www.codifi.info/"
+#define kSafariLinkM2Atag 2
+#define kSafariLinkM2Aurl @"http://map2app.com/"
+
+#define kSafariLinkGetMukurtutag 3
+#define kSafariLinkGetMukurtuurl @"http://www.mukurtumobile.org/get-mukurtu"
+
+#define kSafariLinkVisitMukurtutag 4
+#define kSafariLinkVisitMukurtuurl @"http://www.mukurtumobile.org?utm_source=mukurtumobile"
+
+#define kSafariLinkVideotag 5
+#define kSafariLinkVideourl @"http://www.mukurtumobile.org/mobile-support/video"
+
+#define kSafariLinkSupporttag 6
+#define kSafariLinkSupporturl @"http://www.mukurtumobile.org/mobile-support"
+
+#define kSafariLinkSupportEnabletag 7
+#define kSafariLinkSupportEnableurl @"http://www.mukurtumobile.org/mobile-support/enable"
+
+#define kSafariLinkWSUtag 8
+#define kSafariLinkWSUurl @"http://www.wsu.edu/"
+
+#define kSafariLinkDemoLogintag 17
+
+#define kSafariLinkAccountHelptag 18
+#define kSafariLinkAccountHelpurl @"http://www.mukurtumobile.org/mobile-support/"
+
+
+////Map stuff
+#pragma mark - Map stuff
+
+#define kMapIpadDefaultZoomDistanceMeters 3000.0f
+#define kMaxGeocodingRetries                3
+#define kMinGeocodingAccuracy               100.0
+#define kNewPoiGeocodingGenericError        @"Address not found, Lat: %2.3f Long: %2.3f"
+
+//constant used to center map and create poi popover on ipad
+#define kPinNewPoiMapYRatioPortrait 0.80
+#define kPinNewPoiMapYRatioLandscape 0.95
+
+//create poi preferred popover content view size
+#define kCreatePoiIPadPreferredWidth 650
+#define kCreatePoiIPadPreferredHeight 605
+
+////Metadata table const
+#pragma mark - Metadata table const sizes
+#define kMukurtuMetadataFontSize 14.0
+#define kMukurtuMetadataFontSizeDate 16.0
+#define kMukurtuMetadataFontColor [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0]
+
+#define kMukurtuSectionHeaderHeight 25.0
+#define kMukurtuMetadataGroupRowHeight 32.0
+#define kMukurtuMetadataTextFieldHeight 30.0
+#define kMukurtuMetadataTextFieldPadding 6.0
+
+#define kMukurtuSharingProtocolDefault 0
+#define kMukurtuSharingProtocolOpen 1
+#define kMukurtuSharingProtocolCommunity  2
+
+#define kMukurtuSharingProtocolDefaultText @"Use group defaults"
+#define kMukurtuSharingProtocolOpenText @"Open - accessible to all site users"
+#define kMukurtuSharingProtocolCommunityText  @"Community - accessible only to group members"
+
+//FIX 2.5: added token fields for contributor and creator
+#define kTokenFieldTableRowMaxHeight 200.0
+
+//Metadata sync
+#define kMukurtuMaxGroupSize @"200"
+
+
+////Media handling
+#define kMukurtuMaxMediaForPoi 6
+#define kMukurtuMediaDefaultVideoQuality UIImagePickerControllerQualityTypeHigh
+#define kMukurtuAddMediaSourceButtonAlbumPhoto @"Choose Photo"
+#define kMukurtuAddMediaSourceButtonAlbumVideo @"Choose Video"
+#define kMukurtuAddMediaSourceButtonCameraPhoto @"New Photo"
+#define kMukurtuAddMediaSourceButtonRecordAudio @"New Audio"
+
+#define kMicThumbIconPath @"Documents/mic_icon.png"
+
+//resize postfixes
+#define kMukurtuResizedImagePostfixFull @""
+#define kMukurtuResizedImagePostfixLarge @"_75"
+#define kMukurtuResizedImagePostfixMedium @"_50"
+#define kMukurtuResizedImagePostfixSmall @"_25"
+#define kMukurtuResizedImagePostfixWeb @"_1024x768"
+
+//Preferences keys
+#define kPrefsUnlistedVideoKey @"Mukurtu2PrefsUnlistedVideo"
+#define kPrefsWifiOnlyVideoKey @"Mukurtu2PrefsWifiOnlyVideo"
+#define kPrefsMukurtuKeywordKey @"Mukurtu2PrefsMukurtuKeyword"
+#define kPrefsMukurtuResizeImagesKey @"Mukurtu2PrefsMukurtuResizeImages"
+
+
+////Error messages
+#define kPoiStatusWarningLostChanges @"Changes to this story will be lost, do you really want to exit?"
+#define kAlertButtonKeepEditing @"Keep editing"
+#define kAlertButtonExit @"Yes, exit"
+
+#define kLogoutWarningLostAllPoi @"Are you sure you want to log out?\nContent you have not uploaded will be lost.\nYou will need to have a working Internet connection before you can log in and start creating content again."
+#define kAlertButtonCancel @"Cancel"
+#define kAlertButtonAcceptLogout @"Ok, log me out"
+#define kLoginErrorInvalidCredentials @"Please provide a valid username, password and URL for your Mukurtu site."
+#define kSyncInvalidCanceledMessage @"Metadata sync has been canceled and may be inconsistent. Please resync."
+#define kUploadAllPoiSuccess @"Well done!\nGo to your Mukurtu site to review your new content!"
+#define kUploadAllPoiSuccessDemo @"Your content has been uploaded to our demo site\nmukurtumobile.org/digital-heritage\n\nLike Mukurtu Mobile?\nGet Mukurtu CMS"
+#define kUploadAllPoiFailure @"Some of your content could not be uploaded. Please fix any errors and then try uploading again."
+
+
+#define kUploadNeedYouTubeAlert @"You have added videos to your stories, but you are not logged in to YouTube.\nYou can login to YouTube now or you can just upload all stories with no videos for now."
+#define kUploadNeedYouTubeAlertButtonLoginNow @"Login now"
+#define kUploadNeedYouTubeAlertButtonUploadAnyway @"Skip videos"
+#define kUploadNeedYouTubeAlertButtonCancel @"Cancel"
+
+#define kPoiStatusInvalid @"__uploadInvalid"
+#define kPoiStatusValid @"__uploadValid"
+#define kPoiStatusMissingHeaderText @"Your content has the following errors:"
+#define kPoiStatusMissingTitle @"Missing story title\nPlease enter a title for this story before saving."
+#define kPoiStatusMissingGroup @"You must select at least one cultural protocol to upload your story."
+#define kPoiStatusMissingCommunity @"You must select at least one community to upload your story."
+#define kPoiStatusMissingCategories @"You must select at least one category to upload your story."
+#define kPoiStatusMissingCreator @"You must provide a Creator name to upload your story."
+#define kPoiStatusMissingDate @"You must provide a creation date to upload story."
+#define kPoiStatusMissingSharingProtocol @"You must choose a sharing protocol to upload your story."
+#define kPoiStatusNoYouTubeLoginForVideos @"You will have to provide a YouTube login before you can upload this Story."
+
+#define kPoiStatusInvalidMetadata @"Some of your metadata changed on your Mukurtu site.\nPlease review and save your story before uploading."
+
