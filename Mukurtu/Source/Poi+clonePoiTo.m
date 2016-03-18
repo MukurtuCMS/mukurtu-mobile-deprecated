@@ -53,33 +53,12 @@
     //relationship nullify
     poi.communities =  [NSSet setWithSet:self.communities];
     poi.categories =  [NSSet setWithSet:self.categories];
-    //poi.keywords =  [NSSet setWithSet:self.keywords];
     poi.culturalProtocols = [NSSet setWithSet:self.culturalProtocols];
     
-//#warning don't touch parent relationship of media object by now, sohould be confirmed by saving
+//#warning not changing parent relationship of media object now, should be set while saving
     //warning! this will detach media from original poi, remember to handle it or they'll get lost!
     poi.media =  [NSSet setWithSet:self.media];
     self.media = nil;
-    
-    
-    
-    
-    //not used
-    //poi.street =  self.street
-    //poi.country =  self.country
-    //poi.state =  self.state
-    //poi.telephone =  self.telephone
-    //poi.public =  self.public
-    //poi.streetnum =  self.streetnum
-    //poi.website =  self.website
-    //poi.value =  self.value
-    //poi.email =  self.email
-    //poi.openingtime =  self.openingtime
-    //poi.zip =  self.zip
-    //poi.city =  self.city
-    //poi.price =  self.price
-    //poi.rating =  self.rating copy];
-    
     
     return poi;
 }
