@@ -49,7 +49,6 @@
 
 @property (strong, nonatomic) UIPopoverController *galleryPopoverController;
 
-//@property (nonatomic, strong) CLLocation *lastLocationFound;
 @property (nonatomic, assign) CLLocationCoordinate2D lastMapCenterWithoutOffset;
 
 @property (strong, nonatomic) CLLocationManager *locationManager;
@@ -96,19 +95,16 @@
 
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    
-    
-    /*
-     - fix rotation while recording (important) ok
-     - fix rotation while image preview ok
-     - fix rotation while edit map ok
-     - fix rotation while image picker not implemented
-     - fix rotation while taking photo to test
-     */
+    //this method should handle:
+    // - fix rotation while recording (important) ok
+    // - fix rotation while image preview ok
+    // - fix rotation while edit map ok
+    // - fix rotation while image picker not implemented
+    // - fix rotation while taking photo to test
 
     DLog(@"rotation detected, redrawing views");
     
-    //FIX 2.5: dirty force update costraints (wihtout this on ios8 does not work well when drawing imagepicker popover)
+    //forcing update costraints (wihtout this on ios8 does not work well when drawing imagepicker popover)
     DLog(@"Force update costraint on right view controller");
     [self.mainViewController updateViewConstraints];
     
@@ -120,7 +116,7 @@
         [self.createPoiPopoverController dismissPopoverAnimated:NO];
         
         
-        //FIX 2.5: use member to address create poi controller
+        //center popover on current poi
         if (self.createPoiController.isEditingPoi)
         {
             [self centerMapAndDrawPopover:self.createPoiPopoverController forPoi:self.createPoiController.currentPoi animated:YES];
@@ -131,13 +127,8 @@
             [self centerMapInUserLocationAndDrawPopover:self.createPoiPopoverController animated:YES];
         }
         
-        //FIX 2.5: not needed using nav controller
-        //redraw map edit controller if visible
-        //[self.createPoiController redrawMapEditPopoverController];
-        
         //redraw audio controller if visibile
         [self.createPoiController redrawAudioRecorderPopoverController];
-        
     }
     
     [self updateOverlayButtons];
@@ -169,12 +160,10 @@
     }
     
     [self centerMapAndDrawPopover:popover centerLocation:newMapCenter animated:animated];
-
 }
 
 - (void)centerMapAndDrawPopover:(UIPopoverController *)popover forPoi:(Poi*)poi animated:(BOOL)animated
 {
-    //CLLocationCoordinate2D newMapCenter = self.mainMapView.centerCoordinate;
     CLLocationCoordinate2D newMapCenter = self.lastMapCenterWithoutOffset;
     CLLocationCoordinate2D poiLocation;
     
@@ -200,7 +189,6 @@
 
     CGRect arrowRect;
     UIPopoverArrowDirection arrowDirection;
-    //CLLocationCoordinate2D newMapCenter, poiLocation;
     
     CLLocationCoordinate2D newMapCenter = self.mainMapView.centerCoordinate;
     
@@ -209,7 +197,6 @@
         newMapCenter = location;
         self.lastMapCenterWithoutOffset = location;
     }
-    
     
     if (self.interfaceOrientation == UIInterfaceOrientationPortrait || self.interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown)
     {
@@ -221,31 +208,19 @@
     else
     {
         //landscape
-#warning Should create an empty row at top and point popover there
         arrowRect = CGRectMake(0.0, CGRectGetMidY(self.view.frame), 1,1);
-        //arrowRect = CGRectMake(0.0, 70.0, 1,1);
         arrowDirection = UIPopoverArrowDirectionLeft;
         
         popover.popoverLayoutMargins = UIEdgeInsetsMake(80, 10, 10, 10);
-        
-        /*
-         arrowRect = CGRectMake(CGRectGetMidX(self.view.frame), CGRectGetMaxY(self.view.frame)*kPinNewPoiMapYRatioLandscape, 1,1);
-         arrowDirection = UIPopoverArrowDirectionDown;
-         newMapCenter.latitude += self.mainMapView.region.span.latitudeDelta * kPinNewPoiMapYRatioLandscape - self.mainMapView.region.span.latitudeDelta/2;
-         */
-        
     }
     
     DLog(@"new map center coords %f,%f", newMapCenter.latitude, newMapCenter.longitude);
     
-    
     [self.mainMapView setCenterCoordinate:newMapCenter animated:animated];
-    
     
     [popover presentPopoverFromRect:arrowRect
                                       inView:self.view
                     permittedArrowDirections:arrowDirection animated:YES];
-    
 }
 
 
@@ -257,7 +232,6 @@
 
 - (void) showCreatePoiPopoverForPoi:(Poi *)poi
 {
-    
     DLog(@"Show create poi popover, setting up");
     
     UIStoryboard *mainStoryboard = self.storyboard;
@@ -266,10 +240,9 @@
     createPoiViewController.currentPoi = poi;
     self.createPoiController = createPoiViewController;
     
-    //FIX 2.5: embed in navigation controller to support multiple popover vc push on ios 8
+    //embedding in navigation controller to support multiple popover vc push on ios 8
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self.createPoiController];
     
-    //[navController.navigationBar setBarStyle:UIBarStyleBlack];
     [navController.navigationBar setTranslucent:NO];
     [navController.navigationBar setBarTintColor:kUIColorDarkBarBackground];
 
@@ -291,7 +264,7 @@
     navController.navigationBar.topItem.rightBarButtonItem = saveButton;
     
     
-    //FIX 2.5: avoid resize of popover during dismiss/create (f.e. during interface rotation)
+    //avoid resize of popover during dismiss/create (f.e. during interface rotation)
     navController.preferredContentSize = CGSizeMake(kCreatePoiIPadPreferredWidth, kCreatePoiIPadPreferredHeight);
     
     UIPopoverController *createPoiPopover = [[UIPopoverController alloc] initWithContentViewController:navController];
@@ -318,10 +291,7 @@
 {
     DLog(@"dismissing media gallery");
  
-    //FIX 2.5: using nav controller
     [self.createPoiController.navigationController popViewControllerAnimated:YES];
-    
-    //[self.galleryPopoverController dismissPopoverAnimated:YES];
 }
 
 - (void)deleteGalleryMedia:(PoiMedia *)media
@@ -333,52 +303,20 @@
     
     DLog(@"delete completed, dismissing media gallery");
     
-    //FIX 2.5: using nav controller
     [self.createPoiController.navigationController popViewControllerAnimated:YES];
-
-    //[self.galleryPopoverController dismissPopoverAnimated:YES];
 }
 
 - (void)showMediaGalleryFromMedia:(PoiMedia *)media
 {
     DLog(@"Init new modal gallery view controler");
     
-#warning should dismiss keyboard if present
-    //[self resignFirstResponder];
-    
     UIStoryboard *sharedStoryboard = [UIStoryboard storyboardWithName:@"sharedUI" bundle:[NSBundle mainBundle]];
     GalleryViewController *galleryViewController = [sharedStoryboard instantiateViewControllerWithIdentifier:@"GalleryViewController"];
     galleryViewController.delegate = self;
     galleryViewController.visibleMedia = media;
     
-    //FIX 2.5: uses nav controller and push view without creating another popover
+    //uses nav controller and push view without creating another popover
     [self.createPoiController.navigationController pushViewController:galleryViewController animated:YES];
-    
-//    UIPopoverController *galleryPopover = [[UIPopoverController alloc] initWithContentViewController:galleryViewController];
-//    galleryPopover.delegate = self;
-//    galleryPopover.popoverContentSize = self.createPoiController.view.frame.size;
-//    self.galleryPopoverController = galleryPopover;
-//    
-//    //UIImage *photo = [UIImage imageWithContentsOfFile:media.path];
-//    //[galleryViewController.imageView setImage:photo];
-//    
-//    //Poi *poi = media.parent;
-//    Poi *poi = self.createPoiController.currentPoi;
-//    
-//    if (poi != nil)
-//    {
-//        //editing poi, center on poi location
-//        [self centerMapAndDrawPopover:galleryPopover forPoi:poi animated:YES];
-//    }
-//    else
-//    {
-//        //new poi, center on user location
-//        [self centerMapInUserLocationAndDrawPopover:galleryPopover animated:YES];
-//    }
-    
-    
-    //[self presentViewController:galleryViewController animated:YES completion:nil];
-    
 }
 
 
@@ -388,7 +326,7 @@
     
     [self.createPoiPopoverController dismissPopoverAnimated:YES];
     
-    //FIX 2.5: release any reference to create poi controller after dismiss
+    //release any reference to create poi controller after dismiss
     self.createPoiController = nil;
     self.createPoiPopoverController = nil;
 }
@@ -400,8 +338,6 @@
     DLog(@"Saving core data context");
     
     [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
-    //ask refresh of poi list
-    //[self.mainViewController reloadPoiTable];
     
     [self resetMainMapAnnotations];
     
@@ -411,7 +347,7 @@
     
     [self.createPoiPopoverController dismissPopoverAnimated:YES];
     
-    //FIX 2.5: release any reference to create poi controller after dismiss
+    //release any reference to create poi controller after dismiss
     self.createPoiController = nil;
     self.createPoiPopoverController = nil;
 }
@@ -419,7 +355,7 @@
 
 //Main map handling
 #pragma mark - Main Map Handling
-//FIX 2.5: added user permission request for location services (only under iOS8)
+//added user permission request for location services (only under iOS8)
 -(void) authorizeLocationServices
 {
     self.locationManager = [[CLLocationManager alloc] init];
@@ -491,6 +427,7 @@
     if ((status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusAuthorizedWhenInUse) && self.mainMapView != nil)
     {
         self.mainMapView.showsUserLocation = YES;
+        
         //location manager was needed only to check authorization, since is now useless we can safely destroy it
         self.locationManager = nil;
     }
@@ -520,28 +457,8 @@
 -(void) initMainMap
 {
     DLog(@"Init main map");
-    //self.mainMapView.showsUserLocation = YES;
     DLog(@"map user location lat:%f long: %f", self.mainMapView.userLocation.coordinate.latitude, self.mainMapView.userLocation.coordinate.longitude);
    
-    /*
-    if ([self isValidLocation:self.mainMapView.userLocation.location])
-    {
-        self.lastLocationFound = self.mainMapView.userLocation.location;
-        DLog(@"Last location saved %@", [self.lastLocationFound description]);
-        
-        
-        [self.mainMapView setRegion:MKCoordinateRegionMakeWithDistance(self.mainMapView.userLocation.coordinate, kMapIpadDefaultZoomDistanceMeters, kMapIpadDefaultZoomDistanceMeters) animated:YES];
-        
-    }
-    else
-    {
-        //just set zoom level
-        //[self.mainMapView setRegion:MKCoordinateRegionMakeWithDistance(self.mainMapView.centerCoordinate, kMapIpadDefaultZoomDistanceMeters, kMapIpadDefaultZoomDistanceMeters) animated:YES];
-        [self.mainMapView setVisibleMapRect:MKMapRectWorld];
-    }
-*/
-    
-    
     NSArray *poiList = [[Poi MR_findAllSortedBy:@"timestamp" ascending:NO] copy];
     
     for (Poi *poi in poiList)
@@ -560,12 +477,7 @@
     if (poi.locationLat && poi.locationLong)
     {
         CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake([poi.locationLat doubleValue], [poi.locationLong doubleValue]);
-        
-        
-        //MKPointAnnotation *annotation = [[MKPointAnnotation alloc] init];
-        //[annotation setCoordinate:coordinate];
-        //[annotation setTitle:poi.title];
-        
+
         PoiClassBasedMapAnnotation *annotation = [[PoiClassBasedMapAnnotation alloc] initWithTitle:poi.title subtitle:poi.formattedAddress coordinate:coordinate] ;
         
         [self.mainMapView addAnnotation:annotation];
@@ -578,41 +490,6 @@
     DLog(@"Map changed, new center %@", NSStringFromCGPoint(CGPointMake(self.lastMapCenterWithoutOffset.latitude, self.lastMapCenterWithoutOffset.longitude)));
 }
 
-/*
-- (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
-{
-    DLog(@"Map updated user location");
-    
-    
-    
-}*/
-
-/*
-- (void) centerAndZoomToUserLocation
-{
-    DLog(@"Center and zoom to user location");
-    
-    if ([self isValidLocation:self.mainMapView.userLocation.location])
-    {
-        //show location accuracy
-        NSArray *overlays = [self.mainMapView overlays];
-        if ([overlays count])
-            [self.mainMapView removeOverlays:overlays];
-        
-        [self.mainMapView addOverlay:[MKCircle circleWithCenterCoordinate:self.mainMapView.userLocation.location.coordinate radius:self.mainMapView.userLocation.location.horizontalAccuracy]];
-        
-        self.lastLocationFound = self.mainMapView.userLocation.location;
-        DLog(@"Last location saved %@", [self.lastLocationFound description]);
-        
-        //if position is already visible, just update center without changing zoom level
-        if (!self.mainMapView.userLocationVisible)
-        {
-            [self.mainMapView setCenterCoordinate:self.mainMapView.userLocation.location.coordinate animated:NO];
-        }
-    }
-}
-*/
-
 - (void) restartMapUserLocationUpdate
 {
     //trick the map view to restart updating position
@@ -622,53 +499,6 @@
         self.mainMapView.showsUserLocation = YES;
     }
 }
-
-/*
--(MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay
-{
-    MKCircleView *circleView = [[MKCircleView alloc] initWithCircle:(MKCircle *)overlay];
-    circleView.fillColor = [UIColor  lightGrayColor];
-    circleView.alpha = 0.3;
-    
-    return circleView;
-}*/
-
-
-/*
-- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id < MKAnnotation >)annotation
-{
-    static NSString* AnnotationIdentifier = @"Annotation";
-    MKPinAnnotationView *pinView = (MKPinAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:AnnotationIdentifier];
-    
-    if (!pinView)
-    {
-        
-        MKAnnotationView *customPinView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:AnnotationIdentifier];
-        if (annotation == mapView.userLocation)
-        {
-            
-            //TODO: choose pin based on poi type
-            //customPinView.image = [UIImage imageNamed:@"pin_generic.png"];
-            //DLog(@"new user location pin %@", [customPinView description]);
-            customPinView = nil;
-        }
-        else
-            customPinView.image = [UIImage imageNamed:@"POI_arancio.png"];
-        
-        customPinView.enabled = YES;
-        //customPinView.animatesDrop = YES;
-        //customPinView.canShowCallout = YES;
-        customPinView.centerOffset = CGPointMake(1.0, -(customPinView.image.size.height / 3));
-        return customPinView;
-    } else
-    {
-        
-        pinView.annotation = annotation;
-    }
-    
-    return pinView;
-    
-}*/
 
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
 {
@@ -683,9 +513,7 @@
             annotationView.image = [UIImage imageNamed:@"POI_arancio_small"];
             annotationView.centerOffset = CGPointMake(1.0, -(annotationView.image.size.height / 3));
             
-            
-            
-#warning should add button and handle tap to edit poi
+            //TODO: could add button and handle tap to edit poi
             //UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
             //UIImage *image = [UIImage imageNamed:@"btn_tondo_map.png"];
             //button.bounds = CGRectMake(0.0, 0.0, image.size.width, image.size.height);
@@ -714,7 +542,6 @@
 
 -(void)zoomToFitMapAnnotations:(MKMapView*)mapView animated:(BOOL)animated
 {
-    
     DLog(@"Zoom to fit all poi annotation");
     
     MKMapRect zoomRect = MKMapRectNull;
@@ -727,11 +554,9 @@
     
     //DLog(@"Minimum zoom rect %@",NSStringFromCGRect(CGRectMake(zoomRect.origin.x, zoomRect.origin.y, zoomRect.size.width, zoomRect.size.width)));
     
-    //[mapView setVisibleMapRect:zoomRect edgePadding:UIEdgeInsetsZero animated:animated];
     [mapView setVisibleMapRect:zoomRect edgePadding:UIEdgeInsetsMake(30, 30, 30, 30) animated:animated];
     
     self.lastMapCenterWithoutOffset = mapView.centerCoordinate;
-    
 }
 
 - (IBAction)zoomToFitButtonPressed:(id)sender
