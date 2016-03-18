@@ -421,6 +421,7 @@
 }
 
 
+#warning could refactor and move this method in imagesaver class
 - (void) removePoisFromArray:(NSArray *)poiArray
 {
     DLog(@"Removing %d pois after upload", (int)[poiArray count]);

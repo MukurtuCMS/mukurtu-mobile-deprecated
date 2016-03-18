@@ -37,7 +37,6 @@
 #import "SettingsMenuViewController.h"
 #import "SplashScreenViewController.h"
 
-
 #import "ImageSaver.h"
 
 
@@ -90,7 +89,7 @@
     
     _dismissingSyncController = NO;
     
-    //reachability disabled by now
+    //TODO: reachability is not reliable and have been disabled as now
     //DLog(@"If we have a base url, reset http client to start reachability test");
     //[[MukurtuSession sharedSession] resetClientReachabilityTest];
     
@@ -115,7 +114,7 @@
         {
             DLog(@"Created Launchlock.plist > %@", lockfile);
             //show splascreen only if writing lockfile succeded,
-            //this avoid presenting splashcreen everytime for disk write problems (device full?)
+            //this avoid presenting splashcreen everytime if writing lockfile fails
             
             UIStoryboard *sharedStoryboard = [UIStoryboard storyboardWithName:@"sharedUI" bundle:[NSBundle mainBundle]];
             SplashScreenViewController *splashScreenController = [sharedStoryboard instantiateViewControllerWithIdentifier:@"SplashScreenViewController"];
@@ -248,12 +247,7 @@
 - (void) dismissModalSync
 {
     DLog(@"dismissing modal sync");
-    //if ( self.syncViewController.isViewLoaded && self.syncViewController.view.window)
-  
-    {
-        [self dismissViewControllerAnimated:YES completion:nil];
-        //DLog(@"Sync view alredy dismissed, ignoring dismiss");
-    }
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void) dismissModalUpload
@@ -303,14 +297,13 @@
         [self.syncViewController reportSyncFailed];
     }
     
-    //dismiss modal sync controller
-    //_dismissingSyncController = YES;
     if (!_dismissingSyncController)
+    {
         [self performSelector:@selector(dismissModalSync) withObject:nil afterDelay:1.0];
-    //[self dismissModalSync];
+    }
 }
 
-#warning MOVE this method in imagesaver class
+#warning could refactor and move this method in imagesaver class
 - (void) removePoisFromArray:(NSArray *)poiArray
 {
     DLog(@"Removing %d pois after upload", (int)[poiArray count]);
@@ -341,12 +334,9 @@
     [[MukurtuSession sharedSession] cancelUpload];
     
     [self dismissModalUpload];
-    
-    //some poi status could be changed or uploaded
-    //[self.poiTableController reloadData];
-    
+        
     //Remove all poi uploaded with success
-#warning, could verify if poi actually are visibile con server before removing them (complex task)
+    //TODO: could verify if poi actually are visibile on server before removing them (complex task)
     NSArray *uploadedPois = [[[MukurtuSession sharedSession] uploadedPoiList] copy];
     
     DLog(@"We have uploaded %d poi with success, removing them", (int)[uploadedPois count]);
@@ -354,7 +344,6 @@
 #ifdef REMOVE_POI_AFTER_UPLOAD
     [self removePoisFromArray:uploadedPois];
 #endif
-
     
     //show error to user
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Warning!" message:kUploadAllPoiFailure
@@ -362,7 +351,6 @@
                                               cancelButtonTitle:@"Ok"
                                               otherButtonTitles:nil];
     [alertView show];
-    
     
     //enabling auto lock screen
     DLog(@"Enabling screen auto lock");
@@ -376,9 +364,8 @@
     
     [self dismissModalUpload];
     
-    
     //Remove all poi uploaded with success
-#warning, could verify if poi actually are visibile con server before removing them (complex task)
+    //TODO: could verify if poi actually are visibile on server before removing them (complex task)
     NSArray *uploadedPois = [[[MukurtuSession sharedSession] uploadedPoiList] copy];
     
     DLog(@"We have uploaded %d poi with success, removing them", (int)[uploadedPois count]);
@@ -386,10 +373,8 @@
 #ifdef REMOVE_POI_AFTER_UPLOAD
     [self removePoisFromArray:uploadedPois];
 #endif
-
     
     //display error message for partial upload / upload failed
-#warning check upload success and messages for any result
     [self.poiTableController showUploadResult];
     
     //enabling auto lock screen
@@ -425,12 +410,11 @@
         
         self.uploadViewController = uploadViewController;
         
-        
         //should validate all poi against updated metadata
         [[MukurtuSession sharedSession] validateAllPois];
         [self.poiTableController reloadData];
         
-        //FIX 2.5: fix race condition that starts upload before upload view controller actually loaded (verified on io8)
+        //fixed race condition that starts upload before upload view controller actually loaded (verified on io8)
         //do the magic trick: overwrite sync controller with upload
         DLog(@"do the magic trick: overwrite sync controller with upload");
         [self dismissViewControllerAnimated:NO completion:^{
@@ -445,28 +429,10 @@
                 [[MukurtuSession sharedSession] startUploadJobFromDelegate:self.uploadViewController];
             }];
         }];
-        
-        
-//        //do the magic trick: overwrite sync controller with upload
-//        DLog(@"do the magic trick: overwrite sync controller with upload");
-//        [self dismissViewControllerAnimated:NO completion:^{
-//            [self presentViewController:uploadViewController animated:NO completion:nil];
-//        }];
-//        
-//        [self.syncViewController reportSyncDone];
-//        
-//        //disable auto lock screen
-//        DLog(@"Disabling screen auto lock");
-//        [UIApplication sharedApplication].idleTimerDisabled = YES;
-//        
-//        //Actually start upload job
-//        [[MukurtuSession sharedSession] startUploadJobFromDelegate:self.uploadViewController];
     }
     else
     {
         DLog(@"Last login or sync failed, quitting upload job with errors");
-        //[self dismissModalSync];
-        
     }
     
 }
@@ -478,7 +444,7 @@
     //ignore if no poi in list
     if (![self.poiTableController.poiList count])
     {
-#warning could show an alert, to ask Coda
+        //TODO: may show an alert or visual feedback to notify upload skipping
         DLog(@"No poi in list, ignoring upload request");
         return;
     }
@@ -502,7 +468,6 @@
     
      _dismissingSyncController = NO;
     
-    
     UIStoryboard *sharedStoryboard = [UIStoryboard storyboardWithName:@"sharedUI" bundle:[NSBundle mainBundle]];
     SyncMetadataViewController *syncViewController = [sharedStoryboard instantiateViewControllerWithIdentifier:@"MetadataSyncController"];
     syncViewController.delegate = self;
@@ -512,10 +477,8 @@
     
     [self presentViewController:syncViewController animated:YES completion:nil];
     
-    
     //Actually start metadata sync
     [[MukurtuSession sharedSession] startMetadataSyncFromDelegate:self confirmSelector:@selector(syncBeforeUploadCompleted)];
-    
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
@@ -598,10 +561,8 @@
     
     [self presentViewController:syncViewController animated:YES completion:nil];
     
-    
     //Actually start metadata sync
     [[MukurtuSession sharedSession] startMetadataSyncFromDelegate:self confirmSelector:@selector(syncCompleted)];
-    
 }
 
 - (IBAction)showSettingsView:(id)sender
@@ -611,17 +572,6 @@
     
     UIStoryboard *sharedStoryboard = [UIStoryboard storyboardWithName:@"sharedUI" bundle:[NSBundle mainBundle]];
     SettingsMenuViewController *settingsViewController = [sharedStoryboard instantiateViewControllerWithIdentifier:@"SettingsMainMenu"];
-    
-    
-    //Tricky trick to fix status bar color change in modal controller
-    /*
-    {
-        UIView *fixbar = [[UIView alloc] init];
-        fixbar.frame = CGRectMake(0, 0, 320, 20);
-        fixbar.backgroundColor = [UIColor colorWithRed:0.973 green:0.973 blue:0.973 alpha:1]; // the default color of iOS7 bacground or any color suits your design
-        [settingsViewController.view addSubview:fixbar];
-    }
-     */
     
     [self presentViewController:settingsViewController animated:YES completion:nil];
 }
