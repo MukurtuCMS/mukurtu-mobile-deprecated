@@ -80,6 +80,16 @@ _Pragma("clang diagnostic pop") \
 #define kUIColorLightGrayBackground RGB(245,245,245)
 #define kUIColorOrange RGB(218,120,36)
 
+////YOUTUBE API KEYS
+//TODO: in order to login and upload videos to youtube you must enter your ClientID & Secret here
+//https://developers.google.com/youtube/registering_an_application#create_project
+static NSString *const kMukurtuYouTubeAPIClientID = @"INSERT_YOUR_YOUTUBE_API_CLIENT_ID_HERE";
+
+//TODO: in order to login and upload videos to youtube you must enter your ClientID & Secret here
+//https://developers.google.com/youtube/registering_an_application#create_project
+static NSString *const kMukurtuYouTubeAPISecret = @"INSERT_YOUR_YOUTUBE_API_CLIENT_SECRET_HERE";
+
+
 
 ////Session and keychain keys
 static NSString *const kMukurtuAccountKeychainSessionName = @"Mukurtu 2.5 Session Name";

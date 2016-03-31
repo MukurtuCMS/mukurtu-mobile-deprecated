@@ -163,16 +163,12 @@
 
 - (NSString *) youtubeAPIClientID
 {
-    //TODO: in order to login and upload videos to youtube you must enter your ClientID & Secret here
-    //https://developers.google.com/youtube/registering_an_application#create_project
-    return @"INSERT_YOUR_YOUTUBE_API_CLIENT_ID_HERE";
+    return kMukurtuYouTubeAPIClientID;
 }
 
 - (NSString *) youtubeAPIClientSecret
 {
-    //TODO: in order to login and upload videos to youtube you must enter your ClientID & Secret here
-    //https://developers.google.com/youtube/registering_an_application#create_project
-    return @"INSERT_YOUR_YOUTUBE_API_CLIENT_SECRET_HERE";
+    return kMukurtuYouTubeAPISecret;
 }
 
 - (void) showAuthenticationViewController:(UIViewController *)authView
