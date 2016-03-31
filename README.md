@@ -1,3 +1,5 @@
+#Mukurtu Mobile
+
 Mukurtu Mobile is a mobile authoring tool for Mukurtu CMS, a digital
 heritage management system designed with the needs of indigenous
 communities in mind. The growth of Mukurtu CMS over the last years has
@@ -16,3 +18,4 @@ of Mukurtu Mobile 2.5 is planned for development. At this time the
 latest release for Android phones and tablets is Mukurtu Mobile 2.0,
 compatible with Mukurtu CMS 1.5.
 
+You can find more information on MukurtuMobile and how to contribute in repository wiki page here <https://github.com/codamatic/MukurtuMobile/wiki>.

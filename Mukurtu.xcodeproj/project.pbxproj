@@ -387,9 +387,6 @@
 		3567D29319828F1200AFB9D4 /* cover_iphone4_portrait@2x.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "cover_iphone4_portrait@2x.jpg"; sourceTree = "<group>"; };
 		3567D29A19831FF000AFB9D4 /* mic_gray-border.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mic_gray-border.png"; sourceTree = "<group>"; };
 		3567D29B19831FF000AFB9D4 /* mic_gray-border@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mic_gray-border@2x.png"; sourceTree = "<group>"; };
-		356B3F5B1CAD39D5001CDF28 /* MM2-NEHAppFunctionalSpecificationsv.7.0May2015.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "MM2-NEHAppFunctionalSpecificationsv.7.0May2015.pdf"; sourceTree = "<group>"; };
-		356B3F5C1CAD39D5001CDF28 /* Mukurtu Mobile 2.5 Verbiage.xlsx */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mukurtu Mobile 2.5 Verbiage.xlsx"; sourceTree = "<group>"; };
-		356B3F5D1CAD39D5001CDF28 /* MukurtuMobileTechnicalSpecificationsv.4.0July2014.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = MukurtuMobileTechnicalSpecificationsv.4.0July2014.pdf; sourceTree = "<group>"; };
 		356DE95A1B7037BF00A54720 /* JSBackspaceReportingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSBackspaceReportingTextField.h; sourceTree = "<group>"; };
 		356DE95B1B7037BF00A54720 /* JSBackspaceReportingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSBackspaceReportingTextField.m; sourceTree = "<group>"; };
 		356DE95C1B7037BF00A54720 /* JSTokenButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSTokenButton.h; sourceTree = "<group>"; };
@@ -1057,7 +1054,6 @@
 		3537503E18C0E39C00D4590E = {
 			isa = PBXGroup;
 			children = (
-				356B3F5A1CAD39D5001CDF28 /* TechnicalSpecs */,
 				3537505218C0E39C00D4590E /* Mukurtu */,
 				3537504918C0E39C00D4590E /* Frameworks */,
 				3537504818C0E39C00D4590E /* Products */,
@@ -1114,16 +1110,6 @@
 				3537505A18C0E39C00D4590E /* Mukurtu-Prefix.pch */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		356B3F5A1CAD39D5001CDF28 /* TechnicalSpecs */ = {
-			isa = PBXGroup;
-			children = (
-				356B3F5B1CAD39D5001CDF28 /* MM2-NEHAppFunctionalSpecificationsv.7.0May2015.pdf */,
-				356B3F5C1CAD39D5001CDF28 /* Mukurtu Mobile 2.5 Verbiage.xlsx */,
-				356B3F5D1CAD39D5001CDF28 /* MukurtuMobileTechnicalSpecificationsv.4.0July2014.pdf */,
-			);
-			path = TechnicalSpecs;
 			sourceTree = "<group>";
 		};
 		356DE9591B7037BF00A54720 /* JSTokenField */ = {
