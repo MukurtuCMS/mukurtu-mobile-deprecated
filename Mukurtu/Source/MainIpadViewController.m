@@ -309,8 +309,6 @@
 
 - (IBAction)showSettingsPopover:(id)sender
 {
-#warning should put sharedStoryboard in commander singleton
-    
     UIStoryboard *sharedStoryboard = [UIStoryboard storyboardWithName:@"sharedUI" bundle:[NSBundle mainBundle]];
     UINavigationController *settingsViewController = [sharedStoryboard instantiateViewControllerWithIdentifier:@"SettingsMainMenu"];
     self.settingsMenuViewController = [settingsViewController.viewControllers firstObject];
@@ -329,8 +327,6 @@
     [settingsPopover presentPopoverFromRect:arrowRect
                                      inView:self.view
                    permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
-    
-    
 }
 
 - (BOOL)popoverControllerShouldDismissPopover:(UIPopoverController *)popoverController
