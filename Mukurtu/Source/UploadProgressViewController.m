@@ -30,7 +30,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *uploadLabel;
 @property (weak, nonatomic) IBOutlet UIButton *cancelButton;
 @property (weak, nonatomic) IBOutlet UIView *backgroundView;
-
 @property (weak, nonatomic) IBOutlet UILabel *progressStatusLabel;
 
 @end
@@ -40,7 +39,8 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
+    if (self)
+    {
         // Custom initialization
     }
     return self;
@@ -49,8 +49,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
-    
     _poiToUpload = 0;
     _poiUploaded = 0;
     _cancelingUpload = NO;
@@ -61,13 +59,11 @@
     {
         [self.delegate performSelector:self.uploadDidLoadDelegate withObject:nil afterDelay:1.0];
     }
-    
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void) updateProgressStatus:(NSString *)newStatus
@@ -100,14 +96,13 @@
 {
     float progressValue;
     
-    //FIX 2.5: fixed initial progess value special case
+    //initial progess value special case
     if (self.poiToUpload == 0 && self.poiUploaded == 0)
     {
         progressValue = 0.0;
     }
     else
     {
-        //progressValue = (float)self.poiUploaded / (float)self.poiToUpload;
         progressValue = (float)self.poiUploaded / (float)self.poiToUpload;
     }
     DLog(@"progress value %f", progressValue);
@@ -116,7 +111,6 @@
 
     [self updateProgressLabel];
     
-#warning DON'T MAKE PROGRESS BAR CONTROL WHEN UPLOAD IS COMPLETE!! IT'S HORRIBLE!
     if (!_cancelingUpload && _poiToUpload == _poiUploaded)
     {
         //all poi uploaded or with errors
@@ -130,7 +124,6 @@
 {
     DLog(@"Cancel button pressed");
     
-    //self.uploadLabel.text = @"Upload canceled";
     [self updateProgressLabel];
     
     self.cancelButton.hidden = YES;
@@ -138,7 +131,6 @@
     _cancelingUpload = YES;
     
     [self.delegate performSelector:self.uploadCancelDelegate withObject:nil afterDelay:1.0];
-    
 }
 
 - (void)cancelConfirmed
@@ -167,7 +159,6 @@
     [self.progressBar setProgress:1.0 animated:YES];
     
     [self.delegate performSelector:self.uploadSuccessDelegate withObject:nil afterDelay:1.0];
-    
 }
 
 @end

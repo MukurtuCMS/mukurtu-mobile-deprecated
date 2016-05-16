@@ -43,6 +43,4 @@
 
 - (void) updateProgressStatus:(NSString *)newStatus;
 
-
-
 @end
