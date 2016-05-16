@@ -32,8 +32,6 @@
 
 @interface PoiTableViewController ()
 
-//@property  (strong,nonatomic) NSMutableArray *poiList;
-
 @end
 
 
@@ -61,17 +59,11 @@
 {
     [super viewDidLoad];
 
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 -(void)fetchAllPois
@@ -97,7 +89,6 @@
         NSArray *orderedPoiMedias = [poi.media sortedArrayUsingDescriptors:sortDescriptors];
         
         PoiMedia *media = orderedPoiMedias[0];
-        //[customCell.thumbImage setImage:[UIImage imageWithContentsOfFile:media.thumbnail]];
         [customCell.thumbImage setImage:[UIImage imageWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:media.thumbnail]]];
         
     }
@@ -117,9 +108,6 @@
         
         cell.accessoryView = imageView;
     }
-    
-    //cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-   
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -139,10 +127,8 @@
     static NSString *CellIdentifier = @"PoiCell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
-    // Configure the cell...
     [self configureCell:cell atIndex:indexPath];
 
-    
     return cell;
 }
 
@@ -158,22 +144,9 @@ forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     DLog(@"poi list reload data");
     
-   
-    
     [self fetchAllPois];
     
     [self.tableView reloadData];
-    
-#warning could animate insertion (need new poi parameter to find row position to animate)
-    /*
-    [self.tableView beginUpdates];
-    
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-    
-    [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-    [self.tableView endUpdates];
-     */
-    
 }
 
 - (void) showUploadResult
@@ -195,11 +168,10 @@ forRowAtIndexPath:(NSIndexPath *)indexPath
     }
     else
     {
-#warning should make difference from total failed upload and partial upload fail
+        //TODO: could make difference from total failure upload and partial upload success
         DLog(@"Failure: some poi (or all ones) could not be uploaded");
         message = kUploadAllPoiFailure;
         title = @"Warning!";
-        
     }
     
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:message
@@ -207,16 +179,10 @@ forRowAtIndexPath:(NSIndexPath *)indexPath
                                               cancelButtonTitle:@"OK"
                                               otherButtonTitles:nil];
     [alertView show];
-
-    
 }
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-#warning should show error message (after validation) if present
-    //if ([managedObject valueForKey:@"key"] != nil && [[managedObject valueForKey:@"key"] length] > 0)
-    //    [self errorAlert:[NSString stringWithFormat:@"%@", [managedObject valueForKey:@"key"]]];
-    
     Poi *poi = [self.poiList objectAtIndex:[indexPath row]];
     
     DLog(@"Row tapped, ask main controller to edit poi %@", poi.title);
@@ -224,7 +190,6 @@ forRowAtIndexPath:(NSIndexPath *)indexPath
     SEL selectorEditPoi = NSSelectorFromString(@"editPoi:");
     if ([self.mainViewController respondsToSelector:selectorEditPoi])
     {
-        //[self.mainViewController performSelector:selectorEditPoi withObject:poi];
         SuppressPerformSelectorLeakWarning([self.mainViewController performSelector:selectorEditPoi withObject:poi]);
     }
         
@@ -235,7 +200,6 @@ forRowAtIndexPath:(NSIndexPath *)indexPath
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // Return NO if you do not want the specified item to be editable.
     return YES;
 }
 
@@ -249,7 +213,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath
         // Delete the row from the data source
         Poi *poi = [self.poiList objectAtIndex:[indexPath row]];
         
-        DLog(@"removing %d media and files for poi %@ from store", (int)[poi.media count], poi.title);
+        DLog(@"removing %d media and files for poi %@ from local db", (int)[poi.media count], poi.title);
         for (PoiMedia *media in [poi.media allObjects])
         {
             [ImageSaver deleteMedia:media];
@@ -263,50 +227,15 @@ forRowAtIndexPath:(NSIndexPath *)indexPath
         DLog(@"removing row %d", (int)[indexPath row]);
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         
-
         DLog(@"Saving context");
         [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
         
         SEL selectorUpdateMainMap = NSSelectorFromString(@"updateMainMap");
         if ([self.mainViewController respondsToSelector:selectorUpdateMainMap])
         {
-            //[self.mainViewController performSelector:selectorEditPoi withObject:poi];
             SuppressPerformSelectorLeakWarning([self.mainViewController performSelector:selectorUpdateMainMap]);
         }
-        
-        /*
-        [[NSManagedObjectContext defaultContext] saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
-            if (success)
-                DLog(@"Context saved");
-            else
-                DLog(@"Context save failure! error: %@", [error description]);
-        }];*/
-        
-        
     }
-    
-    /*
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    } */
 }
-
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
 
 @end
