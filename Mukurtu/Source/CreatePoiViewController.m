@@ -42,10 +42,9 @@
 #import "UIImage+Resize.h"
 #import "NSMutableDictionary+ImageMetadata.h"
 
-//FIX 2.5: added custom ui control to handle keywords
+//custom ui controls to handle keywords
 #import "JSTokenField.h"
 #import "TOMSSuggestionBar.h"
-
 
 #define kTabDescription 0
 #define kTabCulturalNarrative 1
@@ -96,8 +95,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *thumbButtonBR;
 
 
-
-//local store
+//temporary editing storage
 @property (strong, nonatomic) NSString *descriptionText;
 @property (strong, nonatomic) NSString *culturalNarrativeText;
 
@@ -126,7 +124,7 @@
 @property(strong, nonatomic)UIPopoverController *mapEditPopoverController;
 
 
-//FIX 2.5: added custom ui control to handle keywords
+//custom ui controls to handle keywords
 @property (nonatomic, strong) NSMutableArray *keywordsTokens;
 @property (nonatomic, strong) JSTokenField *keywordTokenField;
 @property (weak, nonatomic) IBOutlet UIView *tabTextBgView;
@@ -162,7 +160,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+    
+    //this method init the GUI and reloads all data if self.currentPoi != nullptr (f.e. while editing existing Poi).
     
     // Register notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShowNotification:) name:UIKeyboardWillShowNotification object:nil];
@@ -173,10 +172,9 @@
     self.tempRemovedMedias = [NSMutableArray array];
     
     
-    //FIX 2.5: added custom ui control to handle keywords
+    //custom ui controls to handle keywords
     self.keywordsTokens = [NSMutableArray array];
     self.keywordTokenField = [[JSTokenField alloc] initWithFrame:CGRectMake(0, 0, self.tabTextBgView.bounds.size.width, 31)];
-    //[[self.keywordTokenField label] setText:@"keywords:"];
     [self.keywordTokenField setDelegate:self];
     [self.tabTextBgView addSubview:self.keywordTokenField];
     self.keywordTokenField.hidden = YES;
@@ -206,10 +204,6 @@
         DLog(@"Loaded poi dump:\n%@", [self.currentPoi description]);
     }
     
-    //global default values
-    //sharing protocol
-    //self.currentPoi.sharingProtocol =  [NSNumber numberWithInt:kMukurtuSharingProtocolDefault];
-    
     if ([self.currentPoi.title length] > 0)
     {
         [self.titleTextField setText:self.currentPoi.title];
@@ -218,7 +212,7 @@
     self.descriptionText = self.currentPoi.longdescription;
     self.culturalNarrativeText = self.currentPoi.culturalNarrative;
     
-    //FIX 2.5: keyword uses token field, rebuild tokens
+    //keyword uses token field, rebuild tokens
     if ([self.currentPoi.keywordsString length])
     {
         NSArray *keywords;
@@ -242,7 +236,6 @@
         }
     }
     
-
     selectedTab = kTabDescription;
     [self.textView setText:self.descriptionText];
     [self.textView scrollToVisibleCaretAnimated:NO];
@@ -257,7 +250,7 @@
         self.addressLabel.text = [NSString stringWithFormat:kNewPoiGeocodingGenericError, [self.currentPoi.locationLat doubleValue], [self.currentPoi.locationLong doubleValue]];
     }
     
-    //FIXED bug lost coords when editing poi!
+    //reload last coords when editing poi
     if ([self.currentPoi.locationLat length] > 0 && [self.currentPoi.locationLong length] > 0)
     {
         CLLocation *location = [[CLLocation alloc] initWithLatitude:[self.currentPoi.locationLat floatValue] longitude:[self.currentPoi.locationLong floatValue]];
@@ -277,7 +270,6 @@
     
     _takingPhoto = NO;
     addressManuallyEntered = NO;
-
 }
 
 - (void) viewWillAppear:(BOOL)animated
@@ -294,13 +286,11 @@
                              inModelNamed:@"Mukurtu2"];
     suggestionBar.font = [UIFont systemFontOfSize:20];
     suggestionBar.delegate = self;
-    
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 
@@ -317,14 +307,6 @@
 - (BOOL) isValidCoordinate:(CLLocationCoordinate2D)coordinate
 {
     return (CLLocationCoordinate2DIsValid(coordinate));
-    
-    /*
-    if ((coordinate.longitude < 180) && (coordinate.longitude > -180) &&
-        (coordinate.latitude < 90) && (coordinate.latitude > -90))
-        return YES;
-    else
-        return NO;
-     */
 }
 
 #pragma mark - MapKit methods
@@ -338,7 +320,6 @@
     {
         DLog(@"Editing poi: center small map on poi location");
         
-        //CLLocation *location = [[CLLocation alloc] initWithLatitude:[self.currentPoi.locationLat doubleValue] longitude:[self.currentPoi.locationLong doubleValue]];
         CLLocationCoordinate2D coords = CLLocationCoordinate2DMake([self.currentPoi.locationLat doubleValue], [self.currentPoi.locationLong doubleValue]);
         
         if ([self isValidCoordinate:coords])
@@ -364,7 +345,6 @@
         else
         {
             //just set zoom level
-            //[self.mapView setRegion:MKCoordinateRegionMakeWithDistance(self.mapView.centerCoordinate, kMapIpadDefaultZoomDistanceMeters, kMapIpadDefaultZoomDistanceMeters) animated:YES];
             [self.mapView setVisibleMapRect:MKMapRectWorld];
             self.addressLabel.hidden = YES;
         }
@@ -388,10 +368,9 @@
 
     }
     
-    
     if (!isEditingPoi && !_takingPhoto && !addressManuallyEntered && [self isValidLocation:self.mapView.userLocation.location])
     {
-        //show location accuracy
+        //ucomment this to show location accuracy
         /*
         NSArray *overlays = [self.mapView overlays];
         if ([overlays count])
@@ -400,32 +379,16 @@
         [self.mapView addOverlay:[MKCircle circleWithCenterCoordinate:self.mapView.userLocation.location.coordinate radius:self.mapView.userLocation.location.horizontalAccuracy]];
          */
         
-        
         self.lastLocationFound = self.mapView.userLocation.location;
         DLog(@"Last location saved %@", [self.lastLocationFound description]);
         
         //just update center without changing zoom level
-
-        //if (!self.mapView.userLocationVisible)
-        {
-            [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate animated:NO];
-        }
-        
-        
-        
-        //[self.mainMapView setRegion:MKCoordinateRegionMakeWithDistance(self.mainMapView.userLocation.coordinate, kMapIpadDefaultZoomDistanceMeters, kMapIpadDefaultZoomDistanceMeters) animated:YES];
-        
+        [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate animated:NO];
         
         if (!self.geocoder.geocoding)
             [self.geocoder reverseGeocodeLocation:self.mapView.userLocation.location
                                 completionHandler:^(NSArray *placemarks, NSError *error)
              {
-                 //DLog(@"geocoder completed with error %@ , placemarks %@", [error description], [placemarks description]);
-                 
-                 //if (self.geocoderActivityIndicator.isAnimating)
-                 //    [self.geocoderActivityIndicator stopAnimating];
-                 
-                 //if ([error code] == kCLErrorNetwork)
                  if (error != nil)
                  {
                      CLLocation *lastLocation = self.mapView.userLocation.location;
@@ -444,19 +407,10 @@
                          
                          NSString *currentLocationAddress = [self getAddressStringFromPlacemark:placemark];
                          
-                         /*
-                         NSMutableDictionary *cleanedDictionary = [NSMutableDictionary dictionaryWithDictionary:placemark.addressDictionary];
-                         
-                         [cleanedDictionary setValue:nil forKey:@"State"];
-                         
-                         NSString *currentLocationAddress = [ABCreateStringWithAddressDictionary(cleanedDictionary, YES) stringByReplacingOccurrencesOfString:@"\n" withString:@", "];
-                         */
-                          
                          DLog(@"Geocode success, current address is %@", currentLocationAddress);
                          [self.addressLabel setText:[NSString stringWithFormat:@"%@", currentLocationAddress]];
                          geocodingAddressFound = YES;
                          self.lastPlacemarkFound = placemark;
-                         
                          
                          self.addressLabel.hidden = NO;
                          
@@ -464,13 +418,10 @@
                          geocodingRetries--;
                          if (self.lastLocationFound.horizontalAccuracy > kMinGeocodingAccuracy && geocodingRetries > 0)
                          {
-                             //self.mapView.showsUserLocation = NO;
-                             //self.mapView.showsUserLocation = YES;
                              [self performSelector:@selector(restartMapUserLocationUpdate) withObject:nil afterDelay:1.0];
                          }
                      }
              }];
-        
     }
 }
 
@@ -504,53 +455,6 @@
         self.mapView.showsUserLocation = YES;
     }
 }
-
-
-/*
--(MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay
-{
-    MKCircleView *circleView = [[MKCircleView alloc] initWithCircle:(MKCircle *)overlay];
-    circleView.fillColor = [UIColor  lightGrayColor];
-    circleView.alpha = 0.3;
-    
-    return circleView;
-}
- */
-
-/*
-- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id < MKAnnotation >)annotation
-{
-    static NSString* AnnotationIdentifier = @"Annotation";
-    MKPinAnnotationView *pinView = (MKPinAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:AnnotationIdentifier];
-    
-    if (!pinView)
-    {
-        
-        MKAnnotationView *customPinView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:AnnotationIdentifier];
-        if (annotation == mapView.userLocation)
-        {
-            customPinView.image = [UIImage imageNamed:@"pin_generic.png"];
-            DLog(@"new user location pin %@", [customPinView description]);
-            //customPinView = nil;
-        }
-        //else
-        //    customPinView.image = [UIImage imageNamed:@"mySomeOtherImage.png"];
-        
-        customPinView.enabled = YES;
-        //customPinView.animatesDrop = YES;
-        //customPinView.canShowCallout = YES;
-        customPinView.centerOffset = CGPointMake(1.0, -(customPinView.image.size.height / 3));
-        return customPinView;
-    } else
-    {
-        
-        pinView.annotation = annotation;
-    }
-    
-    return pinView;
-    
-}*/
-
 
 ////Metadata table handling
 #pragma mark - Metadata table handling
@@ -589,10 +493,6 @@
 
 -(CGRect)getContainerViewFrame
 {
-    
-    //FIX 2.5: removed since cause UIViewAlertForUnsatisfiableConstraints exception in ios 8.0
-    //[self.metadataContainerView layoutIfNeeded];
-    
     CGRect frame = self.metadataContainerView.frame;
     
     return frame;
@@ -606,8 +506,7 @@
     if (!_keyboardVisible) {
         _keyboardVisible = YES;
         _keyboardRect = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-        //[self updateTextViewContentInset];
-        //[(PSPDFTextView *)self.textView scrollToVisibleCaretAnimated:NO]; // Animating here won't bring us to the correct position.
+        
         [self updateControlsToFitKeyboard];
     }
 }
@@ -616,7 +515,7 @@
     if (_keyboardVisible) {
         _keyboardVisible = NO;
         _keyboardRect = [notification.userInfo[UIKeyboardFrameBeginUserInfoKey] CGRectValue];
-        //[self updateTextViewContentInset];
+        
         [self updateControlsToFitKeyboard];
     }
 }
@@ -624,7 +523,6 @@
 - (void) updateControlsToFitKeyboard
 {
     CGFloat textViewHeight, delay;
-    
     
     [self.view layoutIfNeeded]; // Ensures that all pending layout operations have been completed
     
@@ -645,29 +543,11 @@
         self.textViewHeight.constant = textViewHeight;
         [self.view layoutIfNeeded]; // Forces the layout of the subtree animation block and then captures all of the frame changes
         
-        
     } completion:nil];
     
 }
 
-/*
-- (void)updateTextViewContentInset {
-    CGFloat top = self.topLayoutGuide.length, bottom = 0.f;
- 
-    // Don't execute this if in a popover.
-    if (_keyboardVisible) {
-        bottom = __tg_fmin(CGRectGetHeight(_keyboardRect), CGRectGetWidth(_keyboardRect)); // also work in landscape
-    }
-    
-    //UIEdgeInsets contentInset = UIEdgeInsetsMake(top, 0.f, bottom, 0.f);
-    UIEdgeInsets contentInset = UIEdgeInsetsMake(top, 0.f, bottom, 0.f);
-    self.textView.contentInset = contentInset;
-    self.textView.scrollIndicatorInsets = contentInset;
-    
-}*/
-
-
-////Local Store
+////Local Storage
 -(void) storeTexts
 {
     switch (selectedTab)
@@ -681,7 +561,7 @@
             break;
             
         case kTabKeywords:
-            //FIX 2.5: added custom ui control to handle keywords
+            //custom ui controls handle keywords
             break;
             
         default:
@@ -699,7 +579,6 @@
         self.currentPoi.timestamp = [NSDate date];
     }
     
-#warning overwrite key and disable alert during edit?
     //reset any error key, will be checked later by validate all poi
     self.currentPoi.key = @"";
     
@@ -714,7 +593,6 @@
     self.currentPoi.culturalNarrative = self.culturalNarrativeText;
     self.currentPoi.longdescription = self.descriptionText;
     
-    //FIX 2.5: uses keywords tokens
     //build a semicolon separated list of all inserted keyword tokens
     NSMutableString *keywordList = [NSMutableString string];
     
@@ -742,23 +620,15 @@
         self.currentPoi.formattedAddress = self.addressLabel.text;
     }
     
-    //WARNING following check for valid location not validate manual location entered via edit map. Don't uncomment this!
-    //if ([self isValidLocation:self.lastLocationFound])
-    {
-        self.currentPoi.locationLat = [NSString stringWithFormat:@"%f", (float) self.lastLocationFound.coordinate.latitude];
-        self.currentPoi.locationLong = [NSString stringWithFormat:@"%f", (float) self.lastLocationFound.coordinate.longitude];
-    }
+    self.currentPoi.locationLat = [NSString stringWithFormat:@"%f", (float) self.lastLocationFound.coordinate.latitude];
+    self.currentPoi.locationLong = [NSString stringWithFormat:@"%f", (float) self.lastLocationFound.coordinate.longitude];
     
     //metadata
     self.currentPoi.categories = [NSSet setWithSet:self.metadataTableController.selectedCategories];
     self.currentPoi.culturalProtocols = [NSSet setWithSet:self.metadataTableController.selectedCulturalProtocols];
-    //DLog([self.currentPoi.culturalProtocols description]);
     self.currentPoi.communities = [NSSet setWithSet:self.metadataTableController.selectedCommunities];
     
-    //FIX 2.5: clean orphan communities if any
-    
-    
-    //FIX 2.5: handle contributor and creator as token fields
+    //handle contributor and creator as token fields
     self.currentPoi.creator = self.metadataTableController.creatorString;
     self.currentPoi.contributor = self.metadataTableController.contributorString;
     
@@ -775,22 +645,16 @@
         self.currentPoi.creationDate = [self.metadataTableController.creationDate copy];
     }
     
-    
-    ////Medias, merge changes here
+    ////Medias, merge temporary changes here
     if ([self.tempRemovedMedias count])
     {
         for (PoiMedia *media in [self.tempRemovedMedias copy])
         {
             DLog(@"Removing parked media before saving");
             
-            //[[MukurtuSession sharedSession] deleteMedia:media];
             [ImageSaver deleteMedia:media];
         }
-        
-       // DLog(@"Saving core data context");
-       // [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
     }
-    
 }
 
 - (NSString *)poiHasValidMetadata
@@ -811,18 +675,19 @@
 
 ////TextView and TextField Delegate
 #pragma mark - text view/field delegate
-
 - (void)textViewDidChange:(UITextView *)textView
 {
     [self storeTexts];
 }
 
 
-- (void)textFieldDidEndEditing:(UITextField *)textField {
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
    
- }
+}
 
-- (IBAction)didFinishEditingTitle:(id)sender {
+- (IBAction)didFinishEditingTitle:(id)sender
+{
 	[self.titleTextField resignFirstResponder];
 }
 
@@ -837,7 +702,7 @@
 - (void)disableTab:(UIButton*)tab
 {
     tab.backgroundColor = kUIColorOrange;
-    //tab.titleLabel.textColor = [UIColor whiteColor];
+
     [tab setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
 }
 
@@ -873,8 +738,6 @@
 #pragma mark - Media Handling stuff
 
 ////Image Picker delegate
-#warning better present picker from main controller for orientation issues and spaghetti glue code...
-
 - (void) dismissPickerPopoverController
 {
     DLog(@"Dissmiss picker controller without animation");
@@ -903,7 +766,7 @@
     {
         DLog(@"dismissing modal pick media popover");
         
-        //FIX 2.5: fixed a crash on dismiss picker
+        //fixed a crash on dismiss picker
         [picker dismissViewControllerAnimated:YES completion:^{
             _takingPhoto = NO;
         }];
@@ -965,7 +828,6 @@
             NSData *videoData = [NSData dataWithContentsOfURL:videoURL];
             
             newMedia = [ImageSaver saveVideoToDisk:videoData andCreateMediawithNamePrefix:prefix];
-            
         }
     
     if (newMedia != nil)
@@ -991,7 +853,7 @@
         [self.imagePickerPopoverController dismissPopoverAnimated:YES];
     }
     else
-        //FIX 2.5: fixed a crash on dismiss picker
+        //fixed a crash on dismiss picker
         [picker dismissViewControllerAnimated:YES completion:^{
             _takingPhoto = NO;
         }];
@@ -1007,7 +869,6 @@
     
     if ((assetURL = [info objectForKey:UIImagePickerControllerReferenceURL]))
     {
-        
         ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
         [library assetForURL:assetURL
                  resultBlock:^(ALAsset *asset)  {
@@ -1068,9 +929,7 @@
         DLog(@"ERROR while saving media file and creating media in async mode");
     }
     
-    
     [self updateThumbnailsButtons];
-    
     
     if (self.imagePickerPopoverController.isPopoverVisible)
     {
@@ -1079,11 +938,10 @@
         [self.imagePickerPopoverController dismissPopoverAnimated:YES];
     }
     else
-        //FIX 2.5: fixed a crash on dismiss picker
+        //fixed a crash on dismiss picker
         [picker dismissViewControllerAnimated:YES completion:^{
             _takingPhoto = NO;
         }];
-
 }
 
 
@@ -1119,7 +977,7 @@
                 buttonToUpdate = self.thumbButtonBR;
                 break;
                 
-                //just to be sure... ugly
+                //just to be sure...
             default:
                 buttonToUpdate = self.thumbButtonTL;
                 break;
@@ -1162,7 +1020,6 @@
     NSArray *sortDescriptors = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:YES]];
     NSArray *orderedPoiMedias = [self.currentPoi.media sortedArrayUsingDescriptors:sortDescriptors];
     
-    
     if (button.tag < [orderedPoiMedias count])
     {
         DLog(@"We have an image for index %d", (int)button.tag);
@@ -1176,8 +1033,6 @@
         DLog(@"No image for index %d, ignore tap", (int)button.tag);
         
     }
-
-    
 }
 
 
@@ -1192,9 +1047,7 @@
         DLog(@"Removing a media added after edit, delete immediately");
         [self.tempAddedMedias removeObject:media];
         
-        //[[MukurtuSession sharedSession] deleteMedia:media];
         [ImageSaver deleteMedia:media];
-        
     }
     else
     {
@@ -1211,7 +1064,6 @@
     DLog(@"Saving core data context");
     [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
     [self updateThumbnailsButtons];
-
 }
 
 - (BOOL)popoverControllerShouldDismissPopover:(UIPopoverController *)popoverController
@@ -1219,7 +1071,6 @@
     DLog(@"User trying to dismiss popover controller %@", [popoverController description]);
     
     BOOL canDismiss = NO;
-    
     
     if ([popoverController.contentViewController isKindOfClass:[UINavigationController class]])
     {
@@ -1242,28 +1093,8 @@
     else
         canDismiss = NO;
     
-    
     return (canDismiss);
 }
-
-/*
--(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    DLog(@"Interface orientation change while creating/editing poi");
-    
-    
-    
-    if (self.mapEditPopoverController.isPopoverVisible)
-    {
-        DLog(@"Dismissing pick media popover");
-        
-        [self.mapEditPopoverController dismissPopoverAnimated:NO];
-    }
-    
-
-}
-*/
-
 
 ///Audio record delegates and methods
 - (void) presentAudioRecorderController
@@ -1275,42 +1106,30 @@
     
     RecordAudioViewController *recordAudioViewController = [recordAudioNavigationController.viewControllers firstObject];
     
-    //FIX 2.5: should use nav controller... anyway stille works old way, so keep this for now
-    //RecordAudioViewController *recordAudioViewController = [sharedStoryboard instantiateViewControllerWithIdentifier:@"RecordAudioController"];
-    
     recordAudioViewController.delegate = self;
-    
     
     UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:recordAudioNavigationController];
     popover.delegate = self;
     
-    //CGRect rect = self.view.bounds;
     CGRect rect = self.navigationController.view.bounds;
     popover.popoverContentSize = CGSizeMake(rect.size.width / 2, rect.size.height);
     
-    //[popover presentPopoverFromRect:rect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
     [popover presentPopoverFromRect:rect inView:self.navigationController.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
     self.audioRecorderPopoverController = popover;
-    
-    //FIX 2.5: should use nav controller... anyway stille works old way, so keep this for now
-    //[self.navigationController pushViewController:recordAudioViewController animated:YES];
 }
 
 - (void) redrawAudioRecorderPopoverController;
 {
-    //FIX 2.5: check for controller existence instead of visibility (popoverVisible don't work correctly on ios8)
-    //if (self.audioRecorderPopoverController.popoverVisible)
+    //check for controller existence instead of visibility (popoverVisible don't work correctly on ios8)
     if (self.audioRecorderPopoverController != nil)
     {
         DLog(@"Redrawing audio recorder controller without animation");
         
         [self.audioRecorderPopoverController dismissPopoverAnimated:NO];
         
-        //CGRect rect = self.view.bounds;
         CGRect rect = self.navigationController.view.bounds;
         self.audioRecorderPopoverController.popoverContentSize = CGSizeMake(rect.size.width / 2, rect.size.height);
         
-        //[self.audioRecorderPopoverController presentPopoverFromRect:rect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:NO];
         [self.audioRecorderPopoverController presentPopoverFromRect:rect inView:self.navigationController.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:NO];
     }
 }
@@ -1347,7 +1166,7 @@
         [self.audioRecorderPopoverController dismissPopoverAnimated:YES];
     }
     
-    //FIX 2.5: free up handle to audio recorder popover (this helps handling rotation in ios8)
+    //free up handle to audio recorder popover (this helps handling rotation in ios8)
     self.audioRecorderPopoverController = nil;
     
     [self updateThumbnailsButtons];
@@ -1379,16 +1198,14 @@
         [self.audioRecorderPopoverController dismissPopoverAnimated:YES];
     }
     
-    //FIX 2.5: free up handle to audio recorder popover (this helps handling rotation in ios8)
+    //free up handle to audio recorder popover (this helps handling rotation in ios8)
     self.audioRecorderPopoverController = nil;
-    
 }
 
 
 ////Action Sheet
-//FIX 2.5: changed to handle complete dismiss of action sheet before pushing imagepicker (or other VCs)
+//iOS8 fix to handle complete dismiss of action sheet before pushing imagepicker (or other VCs)
 //http://stackoverflow.com/questions/24942282/uiimagepickercontroller-not-presenting-in-ios-8
-//- (void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 -(void) actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     NSInteger tag = actionSheet.tag;
@@ -1413,7 +1230,6 @@
                     if ([buttonTitle isEqualToString:kMukurtuAddMediaSourceButtonAlbumVideo])
                     {
                         DLog(@"Adding video from photoroll");
-                        //[self pickNewMediaSourceType:UIImagePickerControllerSourceTypePhotoLibrary wantVideo:YES];
                         [self pickNewMediaSourceType:UIImagePickerControllerSourceTypeSavedPhotosAlbum wantVideo:YES];
                     }
                     else
@@ -1427,13 +1243,11 @@
                             DLog(@"User canceled adding media");
                             
                         }
-            
             break;
             
         default:
             break;
     }
-
 }
 
 - (void) pickNewMediaSourceType:(UIImagePickerControllerSourceType)sourceType
@@ -1464,7 +1278,6 @@
         case UIImagePickerControllerSourceTypePhotoLibrary:
         case UIImagePickerControllerSourceTypeSavedPhotosAlbum:
         {
-            
             imagePicker.sourceType = sourceType;
             
             if (wantVideo)
@@ -1485,8 +1298,7 @@
             {
                 UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:imagePicker];
 
-                //FIX 2.5: fix size on ios8 using nav controller
-                //CGRect rect = self.view.bounds;
+                //fix size on ios8 using nav controller
                 CGRect rect = self.navigationController.view.bounds;
                 popover.popoverContentSize = CGSizeMake(rect.size.width / 2, rect.size.height);
                 
@@ -1497,7 +1309,6 @@
             else
             {
                 DLog(@"Presenting photoroll picker controller as modal: should never happen on iPad, iphone only");
-                //imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
                 
                 [self presentViewController:imagePicker animated:YES completion:nil];
             }
@@ -1518,7 +1329,6 @@
         
         if ([picker.mediaTypes count] && [picker.mediaTypes[0] isEqualToString:(NSString *)kUTTypeMovie])
         {
-            
             DLog(@"Showing picker for videos");
             [picker.navigationItem setTitle:@"Videos"];
             viewController.title = @"Videos";
@@ -1544,7 +1354,6 @@
             {
                 DLog(@"Removing media for canceled new poi");
                 
-                //[[MukurtuSession sharedSession] deleteMedia:media];
                 [ImageSaver deleteMedia:media];
             }
             
@@ -1564,7 +1373,6 @@
                 {
                     DLog(@"Removing temp media");
                     
-                    //[[MukurtuSession sharedSession] deleteMedia:media];
                      [ImageSaver deleteMedia:media];
                 }
                 DLog(@"Saving core data context");
@@ -1575,24 +1383,17 @@
             {
                 DLog(@"Some media have been removed during edit, adding them back");
                 
-                //DEBUG
-                //DLog(@"temp removed medias %@", [self.tempRemovedMedias description]);
-                //DLog(@"poi current media %@", [self.currentPoi.media description]);
-                
                 NSMutableSet *unionPoiMedias = [[NSSet setWithArray:self.tempRemovedMedias] mutableCopy];
                 [unionPoiMedias unionSet:self.currentPoi.media];
                 
                 DLog(@"union original medias %@", [unionPoiMedias description]);
                 self.currentPoi.media = unionPoiMedias;
                 
-                //DLog(@"current poi resulting medias %@", [self.currentPoi.media description]);
-                
                 DLog(@"Saving core data context");
                 [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
             }
             
         }
-        
         [self.delegate createPoiCloseButtonPressed];
     }
 }
@@ -1657,10 +1458,7 @@
     else
     {
         DLog(@"Poi already has maximum number of media allowed");
-#warning with scrolling gallery add an alert to user asking to remove some media before adding new ones
     }
-    
-    
 }
 
 
@@ -1668,7 +1466,7 @@
 {
     DLog(@"Save Poi button pressed");
     
-    //FIX 2.5: fix bug for current first responder not saving entered values
+    //fixed bug for current first responder not saving entered values
     [self.view endEditing:YES];
     
     //check if poi has required data
@@ -1682,7 +1480,6 @@
     }
     else
         [self errorAlert:result];
-    
 }
 
 - (IBAction)descriptionTabPressed:(id)sender
@@ -1690,7 +1487,6 @@
     //store edited text
     [self storeTexts];
 
-    //FIX 2.5: added custom ui control to handle keywords
     self.textView.hidden = NO;
     self.keywordTokenField.hidden = YES;
     
@@ -1707,7 +1503,6 @@
 
     [self.textView resignFirstResponder];
     [self.textView becomeFirstResponder];
-
 }
 
 
@@ -1716,7 +1511,6 @@
     //store edited text
     [self storeTexts];
 
-    //FIX 2.5: added custom ui control to handle keywords
     self.textView.hidden = NO;
     self.keywordTokenField.hidden = YES;
     
@@ -1733,12 +1527,10 @@
     
     [self.textView resignFirstResponder];
     [self.textView becomeFirstResponder];
-
 }
 
 - (IBAction)keywordsTabPressed:(id)sender
 {
-    //FIX 2.5: added custom ui control to handle keywords
     [self storeTexts];
     
     [self.textView setText:@""];
@@ -1752,7 +1544,6 @@
     
     [self.textView resignFirstResponder];
     [self.keywordTokenField.textField becomeFirstResponder];
-    
 }
 
 - (IBAction)editMapButtonPressed:(id)sender
@@ -1790,13 +1581,12 @@
     if ([self.addressLabel.text length] > 0)
         mapEditViewController.initialAddress = self.addressLabel.text;
 
-    //FIX 2.5: uses nav controller and push view without creating another popover
+    //uses nav controller and push view without creating another popover
     [self.navigationController pushViewController:mapEditViewController animated:YES];
 }
 
-//FIX 2.5: added custom ui control to handle keywords
+//added custom ui controls to handle keywords
 #pragma mark - TOMSSuggestionDelegate
-
 - (void)suggestionBar:(TOMSSuggestionBar *)suggestionBar
   didSelectSuggestion:(NSString *)suggestion
      associatedObject:(NSManagedObject *)associatedObject
@@ -1818,18 +1608,7 @@
 }
 
 #pragma mark JSTokenField Delegate
-//Checklist tokenField add on
-//- skip already present keyword during add token * 
-//- skip add token if limit height set (e.g. ipad keyword tab) *
-//- rebuild tokens on poi load *
-//- skip ; from allowed text *
-//- skin tokens colors bg image *
-//- add suggestions on keyboard acessory input view (use https://github.com/TomKnig/TOMSSuggestionBar ) *
-//- fix device orientation issues with TOMSSuggestionBar *
-//- add help tip "backspace to delete" in keyb accessory view when selecting token *
-//- build suggestion keyword list during metadata sync (fectch all titles in an array)*
-//- add any new keyword to local DB for suggestion untile next sync (sync will wipe local keywords not yet uploaded) *
-
+//Using custom token field to handle suggestions for tags auto complete feature
 - (BOOL)tokenFieldShouldReturn:(JSTokenField *)tokenField
 {
     if (![tokenField.textField.text length])
@@ -1861,7 +1640,6 @@
     NSDictionary *keyword = [NSDictionary dictionaryWithObject:obj forKey:title];
     [self.keywordsTokens addObject:keyword];
     DLog(@"Added token for < %@ : %@ >\n%@", title, obj, self.keywordsTokens);
-    
 }
 
 - (void)tokenField:(JSTokenField *)tokenField didRemoveToken:(NSString *)title representedObject:(id)obj;
@@ -1921,7 +1699,6 @@
         DLog(@"Tapped keyword BG, force tokenfield focus");
         [self.keywordTokenField.textField becomeFirstResponder];
     }
-    
 }
 
 #pragma mark Map Edit View Controller Delegate
@@ -1929,8 +1706,6 @@
 {
     DLog(@"map edit canceled, dismissing modal view controller");
     
-    //FIX 2.5: using nav controller
-    //[self.mapEditPopoverController dismissPopoverAnimated:YES];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
@@ -1970,60 +1745,16 @@
             [self.mapView addAnnotation:annotation];
         }
         
-        //restart map updates for exif gps data for new camera shoots, also after manually editing address (lastlocation updated will be disabled by addressManuallyEntered flag)
+        //restart map updates to enable exif gps data for new camera shoots
+        //also needed after manually editing address (lastlocation updated will be disabled by addressManuallyEntered flag)
         self.mapView.showsUserLocation = YES;
     }
     else
+    {
         DLog(@"Map edit saved but no placemark specified, just dismiss");
+    }
     
-    //FIX 2.5: using nav controller
-    //[self.mapEditPopoverController dismissPopoverAnimated:YES];
     [self.navigationController popViewControllerAnimated:YES];
 }
-
-//FIX 2.5: not needed anymore with nav controller (handle rotation ok=
-//- (void)showMapEditPopoverController
-//{
-//    CGRect arrowRect;// = CGRectMake(0.0, CGRectGetMidY(self.delegate.view.frame), 1,1);
-//    UIPopoverArrowDirection arrowDirection;
-//
-//    if (self.delegate.interfaceOrientation == UIInterfaceOrientationPortrait || self.delegate.interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown)
-//    {
-//        //portrait
-//        arrowRect = CGRectMake(CGRectGetMidX(self.delegate.view.frame), CGRectGetMaxY(self.delegate.view.frame)*kPinNewPoiMapYRatioPortrait, 1,1);
-//        arrowDirection = UIPopoverArrowDirectionDown;
-//    }
-//    else
-//    {
-//        //landscape
-//#warning Should create an empty row at top and point popover there
-//        arrowRect = CGRectMake(0.0, CGRectGetMidY(self.delegate.view.frame), 1,1);
-//        arrowDirection = UIPopoverArrowDirectionLeft;
-//    }
-//
-//
-////    [self.mapEditPopoverController presentPopoverFromRect:arrowRect
-////                                    inView:self.delegate.view
-////                  permittedArrowDirections:arrowDirection
-////                                  animated:YES];
-//    [self.mapEditPopoverController presentPopoverFromRect:arrowRect
-//                                                   inView:self.view
-//                                 permittedArrowDirections:arrowDirection
-//                                                 animated:YES];
-//
-//
-//}
-
-//- (void) redrawMapEditPopoverController
-//{
-//    
-//    if (self.mapEditPopoverController.popoverVisible)
-//    {
-//        DLog(@"Redrawing map edit controller without animation");
-//        
-//        [self.mapEditPopoverController dismissPopoverAnimated:NO];
-//        [self showMapEditPopoverController];
-//    }
-//}
 
 @end

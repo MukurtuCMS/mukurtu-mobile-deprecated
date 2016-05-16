@@ -42,7 +42,6 @@
 - (void) dismissPickerPopoverController;
 - (void) currentPoiRemoveMedia:(PoiMedia *)media;
 
-//- (void) redrawMapEditPopoverController;
 - (void) redrawAudioRecorderPopoverController;
 
 - (IBAction)closeButtonPressed:(id)sender;
