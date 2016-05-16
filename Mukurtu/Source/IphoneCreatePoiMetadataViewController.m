@@ -28,7 +28,6 @@
 #import "Poi.h"
 
 
-
 @interface IphoneCreatePoiMetadataViewController ()<MetadataContainerControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UIView *metadataContainerView;
@@ -49,15 +48,12 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
-    
     [self displayMetadataTable];
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 
@@ -75,7 +71,6 @@
     slideSegueUnwind.unwinding = YES;
     
     return slideSegueUnwind;
-    
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -117,11 +112,8 @@
         if ([self.tempPoi.creationDateString length] <= 0 && self.tempPoi.creationDate == nil)
             self.tempPoi.creationDate = [NSDate date];
         
-        
-        
         [self.metadataTableViewController loadMetadataFromPoi:self.tempPoi];
     }
-    
 }
 
 - (void)updatePoiMetadata
@@ -150,7 +142,6 @@
         self.tempPoi.creationDateString = nil;
         self.tempPoi.creationDate = [self.metadataTableViewController.creationDate copy];
     }
-    
 }
 
 ////Metadata delegate

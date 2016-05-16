@@ -51,13 +51,11 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void)updatePoiOptionalMetadata
@@ -68,11 +66,7 @@
     self.tempPoi.longdescription = [self.optMetadataTableController.descriptionTextView.text copy];
     self.tempPoi.culturalNarrative = [self.optMetadataTableController.culturalNarrativeTextView.text copy];
     
-    //FIX 2.5: added token field for keywords
-    //self.tempPoi.keywordsString = [self.optMetadataTableController.keywordsTextView.text copy];
     self.tempPoi.keywordsString = [self.optMetadataTableController.keywords copy];
-    
-    //DLog(@"fields: \n%@\n%@\n%@", self.tempPoi.longdescription, self.tempPoi.culturalNarrative, self.tempPoi.keywordsString);
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -107,13 +101,10 @@
     
     [self updatePoiOptionalMetadata];
     [generalPoiController saveCurrentPoi];
-    
-    //[self.presentingViewController.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (IBAction)editDoneButtonPressed:(id)sender
 {
-    
     self.saveButton.hidden = NO;
     self.doneEditButton.hidden = YES;
     [self.optMetadataTableController editDoneButtonPressed];
