@@ -32,14 +32,12 @@
 
 @property (nonatomic) IBOutlet UIButton *webBackButton;
 @property (nonatomic) IBOutlet UIButton *webForwardButton;
-@property (nonatomic) IBOutlet UIButton *webReloadButton;
 @property (nonatomic, strong) IBOutlet UIWebView *webView;
 @property (weak, nonatomic) IBOutlet UILabel *baseUrlLabel;
 
 @property (nonatomic, weak) IBOutlet UIActivityIndicatorView *activityIndicator;
 
 @end
-
 
 
 @implementation WebSiteViewController
@@ -56,7 +54,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
     
     loading = NO;
     
@@ -82,7 +79,6 @@
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 
@@ -137,7 +133,6 @@
     self.activityIndicator.hidden = YES;
     
     [WebSiteViewController cancelPreviousPerformRequestsWithTarget:self];
-    //[self.webView reload];
     
     //alert user
     DLog(@"web  view page load failed, Base URL is not reachable?");
@@ -146,7 +141,6 @@
                                                    delegate:nil
                                           cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [alert show];
-    
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -166,7 +160,6 @@
         self.webForwardButton.enabled = NO;
     else
         self.webForwardButton.enabled = YES;
-    
 }
 
 - (void) timeoutLoading
@@ -179,7 +172,6 @@
     self.activityIndicator.hidden = YES;
     
     [WebSiteViewController cancelPreviousPerformRequestsWithTarget:self];
-    //[self.webView reload];
     
     //alert user
     DLog(@"web  view page load failed, Base URL is not reachable?");
@@ -188,18 +180,6 @@
                                                    delegate:nil
                                           cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [alert show];
-    
 }
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end
