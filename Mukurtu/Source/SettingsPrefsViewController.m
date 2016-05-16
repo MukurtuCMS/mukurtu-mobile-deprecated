@@ -35,22 +35,17 @@
 }
 
 @property (weak, nonatomic) IBOutlet UISwitch *unlistedVideoSwitch;
-//@property (weak, nonatomic) IBOutlet UISwitch *wifiOnlyVideoSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *addMukurtuKeywordSwitch;
 @property (weak, nonatomic) IBOutlet UILabel *youTubeLoginLabel;
 
 @property (weak, nonatomic) YouTubeHelper *youtubeHelper;
 
-
 //imageres
-
 @property (weak, nonatomic) IBOutlet UIButton *fullCameraButton;
-
 @property (weak, nonatomic) IBOutlet UIButton *resizeLargeButton;
 @property (weak, nonatomic) IBOutlet UIButton *resizeMediumButton;
 @property (weak, nonatomic) IBOutlet UIButton *resizeSmallButton;
 @property (weak, nonatomic) IBOutlet UIButton *resizeWebButton;
-
 @end
 
 @implementation SettingsPrefsViewController
@@ -82,7 +77,6 @@
     CGSize size =  rootController.view.bounds.size; // size of view in popover
     
     self.preferredContentSize = size;
-    
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -98,15 +92,12 @@
     CGSize size =  rootController.view.bounds.size; // size of view in popover
     CGSize sizefake =  CGSizeMake(size.width - 1, size.height - 1);
     self.preferredContentSize = sizefake;
-
-
 }
 
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void)reportLoginError:(NSError *)error
@@ -122,32 +113,9 @@
     else
     {
         DLog(@"YouTube Login was successfull, updating UI");
-        
-        /*
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-        
-        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
-        {
-            DLog(@"Taking a weak reference to main view controller for ipad and reload poi table");
-            
-            MainIpadViewController *mainIpad = (MainIpadViewController *)appDelegate.window.rootViewController;
-            
-            [mainIpad reloadPoiTable];
-        }
-        else
-            {
-                DLog(@"Taking a weak reference to main view controller for iphone and reload poi table");
-                
-                MainIphoneViewController *mainIphone = (MainIphoneViewController *)appDelegate.window.rootViewController;
-                
-                [mainIphone reloadPoiTable];
-            }
-
-         */
     }
     
     [self updateUI];
-    
 }
 
 - (IBAction)youtubeLoginButtonPressed:(id)sender
@@ -170,7 +138,6 @@
         appDelegate.forceLoginView = YES;
         
         [self.navigationController popViewControllerAnimated:YES];
-        
     }
     else
     {
@@ -182,7 +149,6 @@
             sharedSession.youTubeStatusReportDelegate = nil;
             
             [self updateUI];
-
         }
         else
         {
@@ -190,10 +156,8 @@
             sharedSession.youTubeStatusReportDelegate = self;
             
             [_youtubeHelper authenticate];
-            
         }
     }
-    
 }
 
 - (IBAction)unlistedVideoSwitchChanged:(id)sender
@@ -235,28 +199,10 @@
             DLog(@"Enabling image resize %@", resizeFactorTag);
         }
     }
-    
     [defaults setValue:resizeFactorTag forKey:kPrefsMukurtuResizeImagesKey];
-    
     [self updateUI];
 }
 
-/*
-- (IBAction)wifiOnlyVideoSwitchChanged:(id)sender
-{
-    NSString *switchKey = kPrefsWifiOnlyVideoKey;
-    
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    
-    UISwitch *aSwitch = (UISwitch *)sender;
-    
-    [defaults setBool:aSwitch.isOn forKey:switchKey];
-    
-    [defaults synchronize];
-    
-    DLog(@"Switch %@ is now %@", switchKey, aSwitch.isOn?@"On":@"Off");
-}
- */
 
 - (IBAction)addMukurtuKeywordSwitchChanged:(id)sender
 {
@@ -326,21 +272,7 @@
         [defaults setBool:YES forKey:kPrefsUnlistedVideoKey];
         needSynchronize = YES;
     }
-    
-    /*
-    //wifi only videos switch
-    if ([defaults objectForKey:kPrefsWifiOnlyVideoKey])
-    {
-        [self.wifiOnlyVideoSwitch setOn:[defaults boolForKey:kPrefsWifiOnlyVideoKey] animated:NO];
-    }
-    else
-    {
-        DLog(@"wifi video switch defaults not found (first run?), using app default status for switch");
-        [defaults setBool:YES forKey:kPrefsWifiOnlyVideoKey];
-        needSynchronize = YES;
-    }
-     */
-    
+
     //add mukurtu mobile keyword switch
     if ([defaults objectForKey:kPrefsMukurtuKeywordKey])
     {
@@ -353,7 +285,6 @@
         needSynchronize = YES;
     }
 
-    
     NSString *currentResizeImageTag;
     if ([defaults objectForKey:kPrefsMukurtuResizeImagesKey])
     {
@@ -389,85 +320,9 @@
     }
     
     if (needSynchronize)
+    {
         [defaults synchronize];
-    
+    }
 }
-
-/*
-#pragma mark - Table view data source
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-#warning Potentially incomplete method implementation.
-    // Return the number of sections.
-    return 0;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-#warning Incomplete method implementation.
-    // Return the number of rows in the section.
-    return 0;
-}
-
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
-    
-    // Configure the cell...
-    
-    return cell;
-}
-*/
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

@@ -46,25 +46,21 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
+    if (self)
+    {
         // Custom initialization
-        //self.navigationBar.backBarButtonItem.title = @"";
-        
-            }
+    }
     return self;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
-#warning should be implemented better (global value for ipad/iphone check?)
-   if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
-   {
-       self.closeButton.enabled = NO;
-       self.closeButton.image = nil;
-   }
-
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
+    {
+        self.closeButton.enabled = NO;
+        self.closeButton.image = nil;
+    }
 }
 
 
@@ -105,24 +101,11 @@
         
         [self performSegueWithIdentifier:@"SettingsMenuToPrefsSegue" sender:self];
     }
-    
-    //CGSize size =  CGSizeMake(320, 300);// size of view in popover
-    //CGSize sizef =  CGSizeMake(320, 301);
-    //self.preferredContentSize = sizef;
-    //self.preferredContentSize = size;
-    
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    
     [super viewWillAppear:animated];
-    
-    //CGSize size =  CGSizeMake(320, 500);// size of view in popover
-    //CGSize sizef =  CGSizeMake(320, 501);
-    //self.preferredContentSize = sizef;
-    //self.preferredContentSize = size;
-
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -132,14 +115,12 @@
         SettingsLoginViewController *loginController =  segue.destinationViewController;
         loginController.delegate = self;
     }
-    
 }
 
 - (void) loginSuccesful
 {
     DLog(@"Login was successful");
     _forceSettingsViewUntilLogin = NO;
-    
     
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
     {
@@ -150,14 +131,11 @@
     }
     else
     {
-        
         [self dismissViewControllerAnimated:NO completion:nil];
         
         MainIphoneViewController *iphoneMainController = (MainIphoneViewController *)[[[[UIApplication sharedApplication] delegate] window]rootViewController];
         
         [iphoneMainController syncButtonPressed:nil];
-
-        
     }
 }
 
@@ -169,15 +147,11 @@
     //ask reload of poi table on ipad only
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
     {
-        
         MainIpadViewController *ipadMainController = (MainIpadViewController *) [[[[UIApplication sharedApplication] delegate] window] rootViewController];
         
         DLog(@"IPad only: ask reload of poi table to root controller %@", [ipadMainController description]);
         [ipadMainController reloadPoiTable];
-        
     }
-    
-    
 }
 
 
@@ -204,6 +178,5 @@
     
     if (!self.forceSettingsViewUntilLogin)
         [self dismissViewControllerAnimated:YES completion:nil];
-    
 }
 @end

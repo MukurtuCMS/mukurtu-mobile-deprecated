@@ -25,10 +25,8 @@
 
 #import "MukurtuSession.h"
 
-
 @interface SettingsHelpViewController ()
 @property (weak, nonatomic) IBOutlet UIButton *learnMoreButton;
-@property (weak, nonatomic) IBOutlet UIButton *helpEnableMukurtuButton;
 
 @end
 
@@ -46,7 +44,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
     
     //style text links buttons
     NSMutableAttributedString *titleString = [[NSMutableAttributedString alloc] initWithAttributedString:[self.learnMoreButton attributedTitleForState:UIControlStateNormal]];
@@ -56,29 +53,11 @@
     
     // using text on button
     [self.learnMoreButton setAttributedTitle: titleString forState:UIControlStateNormal];
-
-
-#warning should implement button press animation for two row button label
-    /*
-    NSMutableAttributedString *titleStringHelpMe = [[NSMutableAttributedString alloc] initWithAttributedString:[self.helpEnableMukurtuButton attributedTitleForState:UIControlStateNormal]];
-    
-    // making text property to underline text-
-    //[titleString addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:NSMakeRange(0, [titleString length])];
-    
-    
-    
-    // using text on button
-    [self.helpEnableMukurtuButton setAttributedTitle:titleStringHelpMe forState:UIControlStateNormal];
-     
-     */
-
-
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 
@@ -143,6 +122,5 @@
     
     [self.navigationController popViewControllerAnimated:YES];
 }
-
 
 @end
