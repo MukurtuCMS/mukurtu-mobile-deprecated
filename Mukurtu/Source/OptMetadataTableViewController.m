@@ -29,16 +29,12 @@
 #import "PoiKeyword.h"
 #import "MukurtuSession.h"
 
-//FIX 2.5: added custom ui control to handle keywords
+//added custom ui control to handle keywords
 #import "JSTokenField.h"
 #import "TOMSSuggestionBar.h"
 
-
 #define kCharCounterTag 101
 #define CHARCOUNTER(a) ((UILabel *) [[ a leftView] viewWithTag:101])
-
-//#define kMukurtuOptionalMetadataGroupRowHeight 115.0
-//#define kMukurtuMetadataTextViewHeight (kMukurtuOptionalMetadataGroupRowHeight - kMukurtuMetadataTextFieldPadding * 2)
 
 #define kMukurtuOptionalMetadataNumberOfSections 3
 
@@ -48,11 +44,8 @@
 
 #define kMukurtuTopBarHeight 58.0f
 
-
-
 @interface OptMetadataTableViewController ()<UITextViewDelegate, JSTokenFieldDelegate, TOMSSuggestionDelegate>
 {
-    
     __weak UITextView *editingView;
     
     CGRect _keyboardRect;
@@ -60,14 +53,11 @@
     CGFloat rowHeight;
     
     __weak IphoneCreatePoiOptionalViewController  *containerController;
-
 }
 
-//FIX 2.5: added custom ui control to handle keywords
+//added custom ui control to handle keywords
 @property (nonatomic, strong) NSMutableArray *keywordsTokens;
 @property (nonatomic, strong) JSTokenField *keywordsTokenField;
-
-
 @end
 
 @implementation OptMetadataTableViewController
@@ -93,7 +83,6 @@
     textView.layer.cornerRadius = 5.0;
     textView.layer.masksToBounds = YES;
     
-    //textView.contentInset = UIEdgeInsetsMake(0.0, 3, 3, 3);
     textView.autocorrectionType = UITextAutocorrectionTypeYes;
     textView.keyboardType = UIKeyboardTypeASCIICapable;
     textView.returnKeyType = UIReturnKeyDefault;
@@ -108,7 +97,8 @@
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
-    if (self) {
+    if (self)
+    {
         // Custom initialization
     }
     return self;
@@ -123,12 +113,10 @@
     //save reference to container
     containerController = (IphoneCreatePoiOptionalViewController*) self.parentViewController;
     
-    //FIX 2.5: added custom ui control to handle tokens for contributor and creator
     //contributor
     self.keywordsTokens = [NSMutableArray array];
     self.keywordsTokenField = [[JSTokenField alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, 31)];
     [self.keywordsTokenField setDelegate:self];
-    
     
     // Register notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShowNotification:) name:UIKeyboardWillShowNotification object:nil];
@@ -147,30 +135,12 @@
     descTextView.delegate = self;
     self.descriptionTextView = descTextView;
     
-    
       //init cultural narrative text view
     PSPDFTextView *cultTextView = [self createMetadataTextView];
     [cultTextView setText:self.culturalNarrative];
     cultTextView.tag = kMukurtuOptionalSectionIndexCulturalNarrative;
     cultTextView.delegate = self;
     self.culturalNarrativeTextView = cultTextView;
-
-    
-//    //init keywords text view
-//    PSPDFTextView *keywordsTextView = [self createMetadataTextView];
-//    
-//    //disable autocorrection just for keywords (annoying)
-//    keywordsTextView.autocorrectionType = UITextAutocorrectionTypeNo;
-//    keywordsTextView.autocapitalizationType = UITextAutocapitalizationTypeNone;
-//    
-//    [keywordsTextView setText:self.keywords];
-//    keywordsTextView.tag = kMukurtuOptionalSectionIndexKeywords;
-//    keywordsTextView.delegate = self;
-//    self.keywordsTextView = keywordsTextView;
-    
-    //if (self.parentContainer.tempPoi != nil)
-    //    [self loadOptionaMetadataFromPoi:containerController.tempPoi];
-
 }
 
 - (void) viewWillAppear:(BOOL)animated
@@ -179,7 +149,7 @@
     
     [self.keywordsTokenField updateBarFrame];
     
-    //FIX 2.5: keywords uses token field, rebuild tokens
+    //keywords uses token field, rebuild tokens
     if ([self.keywords length])
     {
         NSArray *keywordsList;
@@ -205,7 +175,6 @@
     
     [self.tableView reloadData];
     
-    
     //add contributor suggestions bar
     TOMSSuggestionBar *suggestionBar = [[TOMSSuggestionBar alloc] initWithNumberOfSuggestionFields:2];
     [suggestionBar subscribeTextInputView:self.keywordsTokenField.textField
@@ -214,7 +183,6 @@
                              inModelNamed:@"Mukurtu2"];
     suggestionBar.font = [UIFont systemFontOfSize:16];
     suggestionBar.delegate = self;
-    
 }
 
 
@@ -225,16 +193,7 @@
     self.poiDescription = [poi.longdescription copy];
     self.culturalNarrative = [poi.culturalNarrative copy];
     self.keywords = [poi.keywordsString copy];
-    
-    
-    //DLog(@"poi metadata texts: \n%@\n%@\n%@", poi.longdescription, poi.culturalNarrative, poi.keywordsString);
-    //DLog(@"texview fields: \n%@\n%@\n%@", self.description, self.culturalNarrative, self.keywords);
-
 }
-
-//- (void)dealloc {
-//    [NSNotificationCenter.defaultCenter removeObserver:self];
-//}
 
 - (void) viewWillDisappear:(BOOL)animated
 {
@@ -245,7 +204,6 @@
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 
@@ -271,8 +229,6 @@
 
 - (void) updateControlsToFitKeyboard
 {
-    //[self.view layoutIfNeeded]; // Ensures that all pending layout operations have been completed
-    
     if (_keyboardVisible)
     {
     
@@ -387,8 +343,6 @@
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
-    
     switch ([indexPath section])
     {
         default:
@@ -396,15 +350,12 @@
             return rowHeight;
             break;
     }
-    
 }
 
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
-    
     switch ([indexPath section])
     {
         default:
@@ -503,7 +454,6 @@
             
         case kMukurtuOptionalSectionIndexCulturalNarrative:
             //cultural narrative
-            //helpMessage = @"Use this field to provide general cultural context and background information for the content.";
             helpMessage = @"You can use this field to provide general cultural context or historical background information for the content.";
             break;
             
@@ -514,7 +464,6 @@
     
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Help" message:helpMessage delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
     [alertView show];
-    
 }
 
 
@@ -555,9 +504,7 @@
 }
 
 
-//FIX 2.5: added custom ui control to handle keywords
 #pragma mark - TOMSSuggestionDelegate
-
 - (void)suggestionBar:(TOMSSuggestionBar *)suggestionBar
   didSelectSuggestion:(NSString *)suggestion
      associatedObject:(NSManagedObject *)associatedObject
@@ -587,22 +534,9 @@
     {
         [tokenField.textField resignFirstResponder];
     }
-    
 }
 
 #pragma mark JSTokenField Delegate
-//Checklist tokenField add on
-//- skip already present keyword during add token *
-//- skip add token if limit height set (e.g. ipad keyword tab) *
-//- rebuild tokens on poi load *
-//- skip ; from allowed text *
-//- skin tokens colors bg image *
-//- add suggestions on keyboard acessory input view (use https://github.com/TomKnig/TOMSSuggestionBar ) *
-//- fix device orientation issues with TOMSSuggestionBar *
-//- add help tip "backspace to delete" in keyb accessory view when selecting token *
-//- build suggestion keyword list during metadata sync (fectch all titles in an array)
-//- add any new keyword to local DB for suggestion until next sync (sync will wipe local keywords not yet uploaded) not implemented for creator and contributor
-
 - (BOOL)tokenFieldShouldReturn:(JSTokenField *)tokenField
 {
     if (![tokenField.textField.text length])
@@ -724,34 +658,5 @@
     [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kMukurtuOptionalSectionIndexKeywords]
                           atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
-
-//- (void)tokenFieldFrameChanged:(NSNotification *)notification
-//{
-//    DLog(@"TokenField frame changed %@", [notification description]);
-//    
-//    JSTokenField *tokenField = notification.object;
-//    BOOL wasEditing = [tokenField.textField isFirstResponder];
-//    
-//    //this will reload table rows height (with updated token fields height) _without_ dismissing keyboard
-//    //on the contrary, using tableView reloadRowsAtIndexPaths: or reloadSections: will dismiss keyboard automatically
-//    //http://stackoverflow.com/questions/5344206/change-uitableview-row-height-without-dismissing-keyboard
-//    [self.tableView beginUpdates]; // updates the row heights ...
-//    [self.tableView endUpdates]; // ... nothing needed in between
-//    
-//    if (!wasEditing)
-//    {
-//        //if frame changes when not editing, we are adding tokens programmatically when loading a poi
-//        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
-//    }
-//    else
-//    {
-//        if (tokenField == self.keywordsTokenField)
-//        {
-//            [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kMukurtuOptionalSectionIndexKeywords] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-//        }
-//    }
-//}
-
-
 
 @end

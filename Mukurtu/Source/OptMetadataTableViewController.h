@@ -37,15 +37,10 @@
 @property (nonatomic, strong) PSPDFTextView *descriptionTextView;
 @property (nonatomic, strong) PSPDFTextView *culturalNarrativeTextView;
 
-//@property (nonatomic, strong) PSPDFTextView *keywordsTextView;
-
-//@property (nonatomic, copy) NSString *description;
 @property (nonatomic, copy) NSString *poiDescription;
 @property (nonatomic, copy) NSString *culturalNarrative;
 @property (nonatomic, copy) NSString *keywords;
 
-
-//@property (nonatomic, weak) UIViewController<OptMetadataContainerControllerDelegate> *parentContainer;
 @property (nonatomic, weak) IphoneCreatePoiOptionalViewController<OptMetadataContainerControllerDelegate> *parentContainer;
 
 -(void) editDoneButtonPressed;

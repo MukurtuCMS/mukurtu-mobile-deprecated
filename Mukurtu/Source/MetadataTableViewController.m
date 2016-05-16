@@ -33,11 +33,11 @@
 #import "PoiCreator.h"
 #import "PoiMedia.h"
 
-//FIX 2.5: added custom ui control to handle contributor and creator
+//added custom ui controls to handle contributor and creator
 #import "JSTokenField.h"
 #import "TOMSSuggestionBar.h"
 
-//FIX 2.5: ios8 does not support datepicker inside an action sheet, use an alternative
+//ios8 does not support datepicker inside an action sheet, use an alternative
 #import "ActionSheetPicker.h"
 
 #define kMukurtuRequiredMetadataNumberOfSections 6
@@ -54,15 +54,6 @@
 #define CHARCOUNTER(a) ((UILabel *) [[ a leftView] viewWithTag:101])
 #define kMaxDateChar 10
 
-//#define kMukurtuSharingProtocolDefault 0
-//#define kMukurtuSharingProtocolOpen 1
-//#define kMukurtuSharingProtocolCommunity  2
-//
-//#define kMukurtuSharingProtocolDefaultText @"Use group defaults"
-//#define kMukurtuSharingProtocolOpenText @"Open - accessible to all site users"
-//#define kMukurtuSharingProtocolCommunityText  @"Community - accessible only to group members"
-
-
 @interface MetadataTableViewController ()<UITextFieldDelegate, JSTokenFieldDelegate, TOMSSuggestionDelegate>
 {
     BOOL dateIsString;
@@ -72,16 +63,14 @@
     CGRect containerViewFrame;
     
     MukurtuSession *_sharedSession;
-    
 }
-
 
 @property (weak, nonatomic, readonly) MukurtuSession* sharedSession;
 
-//FIX 2.5: ios8 does not support datepicker inside an action sheet, use an alternative
+//ios8 does not support datepicker inside an action sheet, use an alternative
 @property (nonatomic, strong) AbstractActionSheetPicker *actionSheetPicker;
 
-//FIX 2.5: added custom ui control to handle contributor and creator
+//added custom ui control to handle contributor and creator
 @property (nonatomic, strong) NSMutableArray *contributorTokens;
 @property (nonatomic, strong) JSTokenField *contributorTokenField;
 @property (nonatomic, strong) NSMutableArray *creatorTokens;
@@ -140,7 +129,8 @@
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
-    if (self) {
+    if (self)
+    {
         // Custom initialization
     }
     return self;
@@ -153,8 +143,6 @@
     containerViewFrame = [self.parentContainer getContainerViewFrame];
     DLog(@"Container View Frame for metadata %@", NSStringFromCGRect(containerViewFrame));
     
-    
-    //FIX 2.5: added custom ui control to handle tokens for contributor and creator
     //contributor
     self.contributorTokens = [NSMutableArray array];
     self.contributorTokenField = [[JSTokenField alloc] initWithFrame:CGRectMake(0, 0, containerViewFrame.size.width, 31)];
@@ -180,21 +168,11 @@
                                                  name:JSTokenFieldFrameDidChangeNotification
                                                object:nil];
 
-    
-    //sharing protocol
-    //if ([self.poi valueForKey:@"sharingProtocol"] != nil)
-   // {
-   //     selectedSharingProtocol = [[self.poi valueForKey:@"sharingProtocol"] intValue];
-   //
-   //     if (selectedSharingProtocol < 0 || selectedSharingProtocol > 2)
-   //         selectedSharingProtocol = kMukurtuSharingProtocolDefault;
-    //}
-    //else
+    //warning: sharing protocol fixed to default
     selectedSharingProtocol = kMukurtuSharingProtocolDefault;
     
     //init calendar button
     self.calendarButton = [self createCalendarButton];
-
 
     //init creation date text field
     CGFloat btnWidth = CGRectGetWidth(self.calendarButton.frame);
@@ -220,12 +198,10 @@
     self.creationDateTextField = textFieldCreationDateString;
     self.creationDate = [NSDate date];
     
-    
     //init selected groups
     _selectedCategories = [NSMutableSet set];
     _selectedCommunities = [NSMutableSet set];
     _selectedCulturalProtocols = [NSMutableSet set];
-    
 }
 
 - (void) viewWillAppear:(BOOL)animated
@@ -235,7 +211,6 @@
     [self.contributorTokenField updateBarFrame];
     
     [self.creatorTokenField updateBarFrame];
-    
     
     if (![MukurtuSession sharedSession].serverCMSVersion1)
     {
@@ -284,28 +259,10 @@
     self.selectedCulturalProtocols = [poi.culturalProtocols mutableCopy];
     self.selectedCommunities = [poi.communities mutableCopy];
     
-#warning sharing protocol fixed to default
+    //warning: sharing protocol fixed to default
     selectedSharingProtocol = kMukurtuSharingProtocolDefault;
-    //selectedSharingProtocol = [poi.sharingProtocol intValue];
     
-    /*
-    self.contributorTextField.text = [poi.contributor copy];
-    self.creatorTextField.text = [poi.creator copy];
-    
-    
-    //default to current username
-    NSString *username = [[[MukurtuSession sharedSession] storedUsername] copy];
-    
-    if ([poi.creator length] > 0)
-        [self.creatorTextField setText:[poi.creator copy]];
-    else
-        if (![username isEqualToString:@""])
-            [self.creatorTextField setText:username];
-        else
-            [self.creatorTextField setPlaceholder:@"Creator name"];
-    */
-    
-    //FIX 2.5: creator and contributor uses token field, rebuild tokens
+    //creator and contributor uses token field, rebuild tokens
     //contributor
     if ([poi.contributor length])
     {
@@ -374,7 +331,6 @@
     }
     
     [self.tableView reloadData];
-    
 }
 
 - (MukurtuSession*)sharedSession
@@ -390,13 +346,9 @@
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
-
-
 #pragma mark - Table view data source
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
@@ -408,7 +360,6 @@
     // Return the number of rows in the section.
     NSInteger numRows = 0;
     
-    // Return the number of rows in the section.
     switch (section)
     {
         case kMukurtuSectionIndexCategories:
@@ -420,7 +371,7 @@
             break;
             
         case kMukurtuSectionIndexCulturalProtocols:
-            //FIX 2.5: support og hierarchy
+            //supportin open groups hierarchy
             if (self.sharedSession.serverCMSVersion1)
             {
                 numRows = [self.sharedSession.currentCulturalProtocols count];
@@ -579,19 +530,15 @@
             break;
             
         case kMukurtuSectionIndexCreator:
-            //[cell.contentView addSubview:self.creatorTextField];
             [cell.contentView addSubview:self.creatorTokenField];
             break;
             
         case kMukurtuSectionIndexContributor:
-            //[cell.contentView addSubview:self.contributorTextField];
             [cell.contentView addSubview:self.contributorTokenField];
             break;
             
         case kMukurtuSectionIndexDate:
         {
-            //DLog(@"redrawing data row");
-            
             if ([indexPath row] == 0)
             {
                 //add date label to cell
@@ -608,7 +555,6 @@
                 self.calendarButton = [self createCalendarButton];
                 cell.accessoryView = self.calendarButton;
             
-                
                 //set radio button image and tap handling
                 if (dateIsString)
                     cell.imageView.image = [UIImage imageNamed:@"radio_btn_empty.png"];
@@ -649,11 +595,10 @@
             break;
     }
     
-    
     return cell;
 }
 
-//FIXME height for row is really expensive, but setting tableView.rowHeight doesn't work: why?
+//TODO: height for row is really expensive, but setting tableView.rowHeight doesn't work well
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     switch ([indexPath section])
@@ -674,12 +619,10 @@
             return kMukurtuMetadataGroupRowHeight;
             break;
     }
-    
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    
     NSString *sectionTitle;
     
     // Return the number of rows in the section.
@@ -724,7 +667,6 @@
             sectionTitle = @"";
             break;
     }
-    
     
     // create the parent view that will hold header Label
     UIView* customView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, CGRectGetWidth(containerViewFrame), kMukurtuSectionHeaderHeight)];
@@ -818,14 +760,11 @@
     
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Help" message:helpMessage delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
     [alertView show];
-    
 }
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
-    
     switch ([indexPath section])
     {
         case kMukurtuSectionIndexCategories:
@@ -844,14 +783,13 @@
                     case kMukurtuSectionIndexCategories:
                         //categories
                         [self.selectedCategories addObject:[_sharedSession.currentCategories objectAtIndex:[indexPath row]]];
-                        //DLog(@"Adding category %@", [(PoiCategory *)[_sharedSession.currentCategories objectAtIndex:[indexPath row]] name]);
                         break;
                         
                     case kMukurtuSectionIndexCommunities:
                         //communities
                         [self.selectedCommunities addObject:[_sharedSession.currentCommunities objectAtIndex:[indexPath row]]];
                         
-                        //FIX 2.5: reload table after community select/deselect to animate available CP insertion
+                        //reload table after community select/deselect to animate available CP insertion
                         if (!self.sharedSession.serverCMSVersion1)
                         {
                             [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:kMukurtuSectionIndexCulturalProtocols] withRowAnimation:UITableViewRowAnimationAutomatic];
@@ -860,7 +798,8 @@
                         
                     case kMukurtuSectionIndexCulturalProtocols:
                         //cultural protocols
-                        //FIX 2.5: search selected cultural protocol in all cp available (take in account masking performed with communities selection)
+                        //search selected cultural protocol in all cp available
+                        //(take in account masking performed with communities selection)
                         if (self.sharedSession.serverCMSVersion1)
                         {
                             [self.selectedCulturalProtocols addObject:[_sharedSession.currentCulturalProtocols objectAtIndex:[indexPath row]]];
@@ -907,7 +846,7 @@
                         //communities
                         [self.selectedCommunities removeObject:[_sharedSession.currentCommunities objectAtIndex:[indexPath row]]];
                         
-                        //FIX 2.5: reload table after community select/deselect to animate available CP insertion
+                        //reload table after community select/deselect to animate available CP insertion
                         if (!self.sharedSession.serverCMSVersion1)
                         {
                             [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:kMukurtuSectionIndexCulturalProtocols] withRowAnimation:UITableViewRowAnimationAutomatic];
@@ -931,7 +870,8 @@
                         
                     case kMukurtuSectionIndexCulturalProtocols:
                         //cultural protocols
-                        //FIX 2.5: search selected cultural protocol in all cp available (take in account masking performed with communities selection)
+                        //search selected cultural protocol in all cp available
+                        //(take in account masking performed with communities selection)
                         if (self.sharedSession.serverCMSVersion1)
                         {
                             [self.selectedCulturalProtocols removeObject:[_sharedSession.currentCulturalProtocols objectAtIndex:[indexPath row]]];
@@ -955,7 +895,6 @@
                             [self.selectedCulturalProtocols removeObject:[[[availableCPSet allObjects]
                                                                         sortedArrayUsingDescriptors:sortDescriptors]
                                                                        objectAtIndex:[indexPath row]]];
-
                         }
                         break;
                         
@@ -967,28 +906,6 @@
             DLog(@"Selected metadata: Categories: %d, Communities: %d, Cult.Protocols: %d", (int)[_selectedCategories count], (int)[_selectedCommunities count], (int)[_selectedCulturalProtocols count]);
         }
             break;
-        
-        /*
-        case kMukurtuSectionIndexSharingProtocol:
-        {
-            //UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-            
-            selectedSharingProtocol = [indexPath row];
-            
-            for (int i=0; i<3;i++)
-            {
-                NSIndexPath *indexP = [NSIndexPath indexPathForRow:i inSection:kMukurtuSectionIndexSharingProtocol];
-                UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexP];
-                
-                if (i == selectedSharingProtocol)
-                    cell.imageView.image = [UIImage imageNamed:@"radio_btn_full.png"];
-                else
-                    cell.imageView.image = [UIImage imageNamed:@"radio_btn_empty.png"];
-            }
-            
-        }
-            break;
-        */
             
         case kMukurtuSectionIndexDate:
         {
@@ -1044,7 +961,6 @@
 {
     DLog(@"calendar tapped");
     
-    
     NSCalendar *calendar = [NSCalendar currentCalendar];
     
     NSDateComponents *minimumDateComponents = [calendar components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:[NSDate date]];
@@ -1060,17 +976,14 @@
     _actionSheetPicker = [[ActionSheetDatePicker alloc] initWithTitle:@"" datePickerMode:UIDatePickerModeDate selectedDate:self.creationDate
                                                                target:self action:selectorDateSelected origin:sender];
     
-    
     [(ActionSheetDatePicker *) self.actionSheetPicker setMinimumDate:minDate];
     [(ActionSheetDatePicker *) self.actionSheetPicker setMaximumDate:maxDate];
-    
     
     [self.actionSheetPicker addCustomButtonWithTitle:@"Today" value:[NSDate date]];
     
     self.actionSheetPicker.hideCancel = YES;
     
     [self.actionSheetPicker showActionSheetPicker];
-
 }
 
 - (void)dateWasSelected:(NSDate *)selectedDate element:(id)element
@@ -1082,7 +995,6 @@
 
 ////Text Field protocol
 #pragma mark - TextField protocol
-
 - (BOOL)textFieldShouldReturn:(UITextField *)aTextField
 {
     //This removes the keyboard input
@@ -1125,18 +1037,15 @@
         default:
             break;
     }
-    
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    int newLen;
+    NSUInteger newLen;
     
     switch (textField.tag)
     {
         case kMukurtuSectionIndexDate:
-            
-            //DLog(@"range location %d, length %d",range.location, range.length);
             newLen = [textField.text length] + [string length] - range.length;
             if (newLen <= kMaxDateChar)
             {
@@ -1154,9 +1063,8 @@
 }
 
 
-//FIX 2.5: added custom ui control to handle keywords
+//added custom ui control to handle keywords
 #pragma mark - TOMSSuggestionDelegate
-
 - (void)suggestionBar:(TOMSSuggestionBar *)suggestionBar
   didSelectSuggestion:(NSString *)suggestion
      associatedObject:(NSManagedObject *)associatedObject
@@ -1194,18 +1102,6 @@
 }
 
 #pragma mark JSTokenField Delegate
-//Checklist tokenField add on
-//- skip already present keyword during add token *
-//- skip add token if limit height set (e.g. ipad keyword tab) *
-//- rebuild tokens on poi load *
-//- skip ; from allowed text *
-//- skin tokens colors bg image *
-//- add suggestions on keyboard acessory input view (use https://github.com/TomKnig/TOMSSuggestionBar ) *
-//- fix device orientation issues with TOMSSuggestionBar *
-//- add help tip "backspace to delete" in keyb accessory view when selecting token *
-//- build suggestion keyword list during metadata sync (fectch all titles in an array)
-//- add any new keyword to local DB for suggestion until next sync (sync will wipe local keywords not yet uploaded) not implemented for creator and contributor
-
 - (BOOL)tokenFieldShouldReturn:(JSTokenField *)tokenField
 {
     if (![tokenField.textField.text length])
@@ -1248,7 +1144,6 @@
         self.creatorString = [self buildFieldStringForTokens:self.creatorTokens];
         DLog(@"Added creator token for < %@ : %@ >\n%@\nCurrent creator string: %@", title, obj, self.creatorTokens, self.creatorString);
     }
-    
 }
 
 - (void)tokenField:(JSTokenField *)tokenField didRemoveToken:(NSString *)title representedObject:(id)obj;
@@ -1363,7 +1258,6 @@
             [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kMukurtuSectionIndexCreator] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
         }
     }
-    
 }
 
 @end

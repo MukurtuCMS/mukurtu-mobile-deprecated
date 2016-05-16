@@ -33,9 +33,7 @@
 
 @interface MetadataTableViewController : UITableViewController
 {
-
 }
-
 
 @property (nonatomic, weak) UIViewController<MetadataContainerControllerDelegate> *parentContainer;
 
@@ -47,14 +45,10 @@
 @property (nonatomic, strong) UIButton *calendarButton;
 @property (nonatomic, assign) BOOL dateIsString;
 
-//FIX 2.5: handle contributor and creator as token fields
+//handle contributor and creator as token fields
 @property (nonatomic, strong) NSString *contributorString;
 @property (nonatomic, strong) NSString *creatorString;
-//@property (nonatomic, strong) UITextField *creatorTextField;
-//@property (nonatomic, strong) UITextField *contributorTextField;
-
 
 - (void) loadMetadataFromPoi:(Poi *)poi;
-
 
 @end

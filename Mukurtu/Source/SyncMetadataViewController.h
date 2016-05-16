@@ -33,7 +33,4 @@
 
 - (void) reportSyncDone;
 - (void) reportSyncFailed;
-
-//- (void) startWithDelegate:(UIViewController *)delegate cancelSelector:(SEL)cancelSelector completeSelector:(SEL)completeSelector;
-
 @end
