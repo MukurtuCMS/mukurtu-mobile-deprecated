@@ -53,7 +53,7 @@
 
 @interface MukurtuSession()
 {
-     int batchOperationsFinished;
+    int batchOperationsFinished;
     
     BOOL _userIsLoggedIn;
     BOOL _lastLoginSuccess;
@@ -68,19 +68,11 @@
     BOOL _cancelingSync;
     
     BOOL _serverCMSVersion1;
-    
 }
 
 @property  (strong, nonatomic) AFHTTPClient *httpClient;
 
-
-//@property (nonatomic, assign, readonly) BOOL baseUrlReachable;
 @property (nonatomic, assign, readonly) BOOL updating;
-//@property (nonatomic, assign, readonly) BOOL updateErrors;
-
-
-//@property (nonatomic, strong) NSArray *toUploadPoiList;
-//@property (nonatomic, strong) NSMutableArray *toKeepPoiList;
 
 @property (nonatomic, strong) NSArray *serverCommunities;
 @property (nonatomic, strong) NSArray *serverCulturalProtocols;
@@ -94,12 +86,9 @@
 
 @property (assign, nonatomic)AFNetworkReachabilityStatus baseUrlReachabilityStatus;
 
-//@property (nonatomic, assign, readonly) BOOL youTubeTokenValid;
-
 @property (nonatomic, strong) NSString *sessionTokenCSRF;
 
 @end
-
 
 
 @implementation MukurtuSession
@@ -132,20 +121,7 @@
         [sharedSession setCurrentGroups];
         
         [sharedSession initYouTubeHelper];
-        
-        //check all pois validity
-        //[sharedSession validateAllPois];
-        
-        /*
-        if (sharedSession.storedBaseUrl && [sharedSession.storedBaseUrl length])
-        {
-            DLog(@"We have a stored base url, reset http client to start reachability test");
-            [sharedSession resetHttpClientSession];
-        }
-         */
-        
     });
-    
     
     return sharedSession;
 }
@@ -160,7 +136,6 @@
     
 }
 
-
 - (NSString *) youtubeAPIClientID
 {
     return kMukurtuYouTubeAPIClientID;
@@ -174,35 +149,17 @@
 - (void) showAuthenticationViewController:(UIViewController *)authView
 {
     NSLog(@"Show auth view controller");
-    //[self presentViewController:authView animated:YES completion:nil];
     
     if (self.youTubeSettingsNavigationController)
     {
-        
-        //AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-        
-        
-        /*
-         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
-         {
-         DLog(@"Taking a weak reference to main view controller");
-         
-         MainIpadViewController *mainIpad = (MainIpadViewController *)appDelegate.window.rootViewController;
-         
-         [mainIpad dismissSettingsPopover];
-         [mainIpad presentViewController:authView animated:YES completion:nil];
-         }*/
-        
         CGSize size = [[UIScreen mainScreen] bounds].size; // size of view in popover should match device screen size
         authView.preferredContentSize = size;
         [self.youTubeSettingsNavigationController pushViewController:authView animated:YES];
-        
     }
     else
     {
         DLog(@"Error! no settings navigation controller delegate set to show youtube auth view");
     }
-    
 }
 
 - (void) authenticationEndedWithError:(NSError *)error
@@ -223,9 +180,6 @@
     {
         [self.youTubeStatusReportDelegate reportLoginError:error];
     }
-    
-    //[self updateAuthButton];
-    //[self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void) resetAllInvalidPoisForVideosAndValidate
@@ -234,7 +188,8 @@
     
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"key == %@", kPoiStatusNoYouTubeLoginForVideos];
     NSArray *allPoisWithInvalidVideos = [Poi MR_findAllWithPredicate:predicate];
-    DLog(@"We have %d invalid pois with videos", [allPoisWithInvalidVideos count]);
+
+    DLog(@"We have %lu invalid pois with videos", (unsigned long)[allPoisWithInvalidVideos count]);
     
     for (Poi *poi in allPoisWithInvalidVideos)
     {
@@ -250,11 +205,9 @@
 {
     DLog(@"Check before upload if we have videos to upload but user is not logged in youtube");
     
-    
     if (!_youTubeHelper.isAuthValid)
     {
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"type == %@", @"video" ];
-
         
         NSArray *allVideos = [PoiMedia MR_findAllWithPredicate:predicate];
         DLog(@"We have %lu videos to upload", (unsigned long)[allVideos count]);
@@ -264,7 +217,6 @@
         {
             return YES;
         }
-        
     }
     
     return NO;
@@ -284,7 +236,6 @@
             NSString *thumbnailFid = [[media.key copy] substringFromIndex:[@"fid-" length]];
             
             media.key = [NSString stringWithFormat:@"%@,%@",thumbnailFid, videoId];
-            
             DLog(@"combined media video key (fid,videoid): %@", media.key);
         }
         else
@@ -302,12 +253,9 @@
             //CMS 2.0 return here, uploadPoi will be called after scald atom has been created
             return;
         }
-        
     }
     else
     {
-        
-#warning by now if we fail youtube video we reset all media key, forgetting fid for already uploaded big thumbnail
         //upload failed, mark this media as invalid to stop upload for this poi
         DLog(@"Upload video failure, mark media as invalid");
         media.key = kPoiStatusInvalid;
@@ -317,13 +265,8 @@
     DLog(@"Saving Context after video upload terminated");
     [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
     
-    //call again upload for this poi: if all media are ok poi upload will start
-    //(if not it will trigger next media upload)
-    //[self uploadPoi:media.parent];
-    
-    //FIX 2.5: upload using already obtained CSRF token
+    //upload using already obtained CSRF token
     [self uploadPoiWithCSRFToken:media.parent];
-    
 }
 
 - (void)uploadProgressPercentage:(int)percentage
@@ -336,25 +279,6 @@
     }
 }
 
-/*
-- (void) validateYouTubeSession
-{
-    DLog(@"Validating youtube session token");
- 
-    _youTubeTokenValid = NO;
- 
-    if ([_youTubeHelper isAuthValid])
-    {
-        DLog(@"User is logged in youtube, try a request to validate token");
-        _youTubeTokenValid = YES;
-    }
-    else
-    {
-        DLog(@"User is not logged in youtube, should skip all poi with videos");
-    }
-
-}
-*/
 
 #pragma mark - mukurtu session methods
 - (NSString *)storedBaseUrlCMSVersion
@@ -427,7 +351,6 @@
     self.storedBaseUrlCMSVersion = @"";
     
     [self setStoredLoggedInStatus:NO];
-
 }
 
 - (void)setStoredLoggedInStatus:(BOOL)isLoggedIn
@@ -437,7 +360,6 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:[NSNumber numberWithBool:isLoggedIn] forKey:kMukurtuStoredLoggedInStatus];
     [defaults synchronize];
-
 }
 
 - (BOOL)storedLoggedInStatus
@@ -451,9 +373,8 @@
 - (BOOL)isBaseUrlReachable
 {
     DLog(@"Network reachability %d", self.baseUrlReachabilityStatus);
-    //return (self.baseUrlReachabilityStatus > 0);
     
-#warning reachability not working well by now, always return true
+    //TODO: reachability not implemented
     return YES;
 }
 
@@ -488,13 +409,7 @@
     DLog(@"Checking if user is logged in");
     
     _userIsLoggedIn = NO;
-    
-    //DEBUG
-    //self.storedUsername = @"";
-    //self.storedPassword = @"";
-    //self.storedBaseUrl = @"";
-    
-    
+
     if ([self storedLoggedInStatus] &&
         self.storedUsername.length > 0 && self.storedPassword.length > 0 && self.storedBaseUrl.length > 0)
     {
@@ -505,7 +420,6 @@
     else
     {
         //if only some credentials is missing, delete all from store since are valid no more
-        //[self resetStoredLoginCredentials];
         DLog(@"No stored credentials, user is logged out");
     }
     
@@ -534,53 +448,8 @@
     //reset any pending youtube upload
     [_youTubeHelper cancelAllCurrentUploads];
 
-#warning should check network availability!!
-
-    //__weak MukurtuSession *weakSelf = self;
-    
-    
-    //initialize network reachability as rechable.
-    //This could lead to false positive, so NEVER use network status for logic, just for diagnostic purpose (f.e. bandwidth limit, ecc)
     self.baseUrlReachabilityStatus = AFNetworkReachabilityStatusReachableViaWWAN;
-    
-    
-#warning reachability not working sometimes, better try with afnetowrking 2.0 or other libs
-    /*
-    [self.httpClient setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status)
-    {
-        if (status == AFNetworkReachabilityStatusNotReachable ||
-            status == AFNetworkReachabilityStatusUnknown)
-        {
-            DLogBlock(@"Base URL become not reachable!");
-        }
-        else
-            if (status == AFNetworkReachabilityStatusReachableViaWWAN)
-        {
-            // 3g/LTE
-            DLogBlock(@"Base URL reachable via WWAN (Edge/3g/4g/LTE)");
-        }
-        else
-        if (status == AFNetworkReachabilityStatusReachableViaWiFi)
-        {
-            // On wifi
-            DLogBlock(@"Base URL reachable via Wifi");
-        }
-        
-        weakSelf.baseUrlReachabilityStatus = status;
-
-    }];
-     */
 }
-
-
-/*
-- (void)setUserIsLoggedIn:(BOOL)userIsLoggedIn
-{
-    DLog(@"Setting logged in status permanently");
-    
-    //dummy, useless since property is readonly
-}
- */
 
 - (void)resetHttpClientAuthCookies
 {
@@ -596,7 +465,6 @@
     _lastKeywordsSyncSuccess = NO;
     _lastContributorsSyncSuccess = NO;
     _lastCreatorsSyncSuccess = NO;
-
     
     //forget server gourps, should be retrieved on new sync
     self.serverCategories = nil;
@@ -614,7 +482,6 @@
     {
         [self.httpClient setDefaultHeader:@"Cookie" value:nil];
         [self.httpClient setDefaultHeader:@"X-CSRF-Token" value:nil];
-        //[self.httpClient cleanCookieStorage];
         
         NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
         NSArray *cookies = [cookieStorage cookies];
@@ -629,7 +496,6 @@
         }
     }
 
-    
     self.sessionTokenCSRF = nil;
     _serverCMSVersion1 = NO;
 }
@@ -684,7 +550,6 @@
     //prevent further network errors messages for this login/sync/upload session
      _cancelingSync = NO;
     
-
     NSDictionary *params = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:self.storedUsername, self.storedPassword, nil]
                                                        forKeys:[NSArray arrayWithObjects:@"username", @"password", nil]];
     
@@ -704,7 +569,7 @@
                           NSDictionary *nodeJSON = responseObject;
                           DLog(@"login success: response object: %@", [nodeJSON description]);
                           
-                          //FIX 2.5: check CMS version to support old installations
+                          //check CMS version to support old installations
                           if ([[nodeJSON valueForKey:@"user"] valueForKey:@"field_culturalprotocol"] != nil)
                           {
                               DLog(@"Backend CMS VERSION 1.0: enable legacy support for old cms version");
@@ -737,9 +602,6 @@
                               SuppressPerformSelectorLeakWarning([delegate performSelector:selector]);
                           }
                           
-                          //update metadata handle delegate to callback when done
-                          //[session updateMetadataWithDelegate:self];
-
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         DLog(@"login error: %@ responseString %@",error, [operation.response allHeaderFields]);
         
@@ -768,11 +630,7 @@
                 SuppressPerformSelectorLeakWarning([delegate performSelector:selector]);
             }
         }
-        
-        
-        
     }];
-
 }
 
 - (void)analyticsReportSuccesfulLogin
@@ -787,7 +645,6 @@
     
     if ([cleanBaseUrl hasSuffix:@"/"])
         cleanBaseUrl = [cleanBaseUrl substringToIndex:([cleanBaseUrl length] - 1)];
-    
     
     NSString *targetUrlString = [NSString stringWithFormat:@"%@%@", kMukurtuServerAnalyticsSuccesfulLoginReportUrl, cleanBaseUrl];
     
@@ -808,8 +665,6 @@
     }];
     
     [httpOperation start];
-    
-    
 }
 
 - (void)logoutUserAndRemovePois
@@ -828,9 +683,7 @@
     CFShow((__bridge CFTypeRef)([[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSHomeDirectory() stringByAppendingString:@"/Documents"] error:NULL]));
 #endif
 
-    
     //Delete all poi and media here!
-#warning should delete all poi and media here
     DLog(@"Deleting all poi, groups and media in local store");
     for (PoiMedia *media in [PoiMedia MR_findAll])
     {
@@ -863,9 +716,6 @@
     CFShow((__bridge CFTypeRef)([[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSHomeDirectory() stringByAppendingString:@"/Documents"] error:NULL]));
 #endif
 
-    
-#warning could call logout session on server! not really needed, but subtle better security server side (stolen sessions)
-    
     //actually we don't remove all credentials for later login, could be changed
     //we remove only password for security purpose
     self.storedPassword = @"";
@@ -892,7 +742,6 @@
     _cancelingSync = YES;
     
     [self resetHttpClientSession];
-    
 }
 
 - (void)cancelUpload
@@ -900,13 +749,11 @@
     DLog(@"canceling upload by user request");
     _cancelingSync = YES;
     [self resetHttpClientSession];
-    
 }
 
 -(void)loginForMetadataSyncDone
 {
     DLog(@"Login for metadata terminated with success status %d", self.lastLoginSuccess);
-    
     
     if (!_lastLoginSuccess)
     {
@@ -920,7 +767,6 @@
             DLog(@"Reporting metadata sync failure to controller %@", [self.currentSessionDelegate description]);
             SuppressPerformSelectorLeakWarning([self.currentSessionDelegate performSelector:self.currentSessionSelector]);
         }
-
     }
     else
     {
@@ -936,11 +782,9 @@
 {
     DLog(@"Session start metadata sync");
     
-    
     if (_updating)
     {
         DLog(@"Avoid update at all, another one is still waiting");
-        //[self notifySessionDelegate:delegate result:kMukurtuSessionDelegateResultUpdateRunning];
         return;
     }
     else
@@ -948,28 +792,11 @@
     
     _cancelingSync = NO;
     
-#warning should check network availability
-    /*
-    if (!session.baseUrlReachable || ![session isSignedIn])
-    {
-        DLog(@"Cannot reach server or not signed in, cancel metadata update");
-        updating = NO;
-        [self notifySessionDelegate:delegate result:kMukurtuSessionDelegateResultFailure];
-        return;
-    }
-     */
-    
-    
-    //DEBUG: wrong login simulate server user tampering (disabled user, ecc)
-    //self.storedUsername = @"WRONG LOGIN";
-    
     self.currentSessionDelegate = delegate;
     self.currentSessionSelector = selector;
-    
-#warning could use system connect, but more stable this way
+
     //do a new login with stored credentials
     [self loginNewSessionForController:self confirmSelector:@selector(loginForMetadataSyncDone)];
-    
 }
 
 - (void) updateAllGroupsFromRemoteServer
@@ -1009,7 +836,6 @@
                              //show alert view with error
                              [self showNetworkErrorAlert];
                              
-#warning refactor following stop http task lines below in callable method!!
                              _updating = NO;
                              
                              //report sync done (failure)
@@ -1018,9 +844,7 @@
                                  DLog(@"Reporting metadata sync failure to controller %@", [self.currentSessionDelegate description]);
                                  SuppressPerformSelectorLeakWarning([self.currentSessionDelegate performSelector:self.currentSessionSelector]);
                              }
-                             
                          }];
-        
         
         
         ////CULTURAL PROTOCOLS fetch request
@@ -1042,11 +866,9 @@
                              DLog(@"Failure: Fetch cultural protocols");
                              DLog(@"error %@, response Headers %@",error, [operation.response allHeaderFields]);
                              
-                             
                              //show alert view with error
                              [self showNetworkErrorAlert];
                              
-#warning refactor following stop http task lines below in callable method!!
                              _updating = NO;
                              
                              //report sync done (failure)
@@ -1060,11 +882,11 @@
     }
     else
     {
-        //FIX 2.5: server CMS version is >=2.0
+        /////////server CMS version is >=2.0///////////
         //With latest CMS version (2.0+) we should fetch communities and CPs using new ad hoc services extensions
         //this method retrieves both communities and cultural protocols, listing only:
         //- all communities accessible to current users (i.e. all communities where user is member in)
-        //-all CPs where user can post to (i.e. all CPs where user is member in AND has contributor or protocol steward roles, read only CPs are not listed here)
+        //- all CPs where user can post to (i.e. all CPs where user is member in AND has contributor or protocol steward roles, read only CPs are not listed here)
         DLog(@"CMS >=2.0 Fetch user accessible groups from server");
         
         ////COMMUNITIES and CULTURAL PROTOCOLS fetch
@@ -1127,7 +949,6 @@
                              //show alert view with error
                              [self showNetworkErrorAlert];
                              
-#warning refactor following stop http task lines below in callable method!!
                              _updating = NO;
                              
                              //report sync done (failure)
@@ -1140,10 +961,8 @@
                          }];
         
         ////CONTRIBUTORS fetch request
-#warning contributor TID  could change in future, we may add a check in 3.0?
-        
+        //warning contributor TID  could change in future, we may add a check in 3.0?
         NSString *serverContributorVID = kMukurtuContributorVID;
-        
         params = [NSMutableDictionary dictionaryWithObjects:[NSArray
                                                              arrayWithObjects:kMukurtuMaxGroupSize,serverContributorVID,@"name,tid", nil]
                                                     forKeys:[NSArray arrayWithObjects:@"pagesize",@"parameters[vid]",@"fields", nil]];
@@ -1178,8 +997,7 @@
                          }];
         
         ////CREATOR fetch request
-#warning creator TID  could change in future, we may add a check in 3.0?
-        
+        //warning creator TID  could change in future, we may add a check in 3.0?
         NSString *serverCreatorVID = kMukurtuCreatorVID;
         
         params = [NSMutableDictionary dictionaryWithObjects:[NSArray
@@ -1218,7 +1036,7 @@
     }
     
     ////CATEGORIES fetch request
-#warning category TID kMukurtuCategoryVID could change in future, we may add a check in 3.0?
+    //warning category TID kMukurtuCategoryVID could change in future, we may add a check in 3.0?
     params = [NSMutableDictionary dictionaryWithObjects:[NSArray
                                                           arrayWithObjects:kMukurtuMaxGroupSize,kMukurtuCategoryVID,@"name,tid", nil]
                forKeys:[NSArray arrayWithObjects:@"pagesize",@"parameters[vid]",@"fields", nil]];
@@ -1242,7 +1060,6 @@
                          //show alert view with error
                          [self showNetworkErrorAlert];
                          
-#warning refactor following stop http task lines below in callable method!!
                          _updating = NO;
                          
                          //report sync done (failure)
@@ -1256,8 +1073,7 @@
     
     
     ////KEYWORDS fetch request
-#warning keyword TID  could change in future, we may add a check in 3.0?
-    
+    //warning keyword TID  could change in future, we may add a check in 3.0?
     NSString *serverKeywordVID;
     if (self.serverCMSVersion1)
     {
@@ -1313,7 +1129,6 @@
     
     for (NSDictionary *serverCommunity in self.serverCommunities)
     {
-        //DLog(@"community dump %@", [community description]);
         [groupTreeDictionary setObject:[NSMutableSet set] forKey:[serverCommunity valueForKey:@"nid"]];
     }
     
@@ -1344,7 +1159,9 @@
     DLog(@"Start fetching all CP details");
     [self.httpClient enqueueBatchOfHTTPRequestOperations:operations
                                            progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations) {
-                                               DLog(@"Fetched %d CPs of %d", numberOfFinishedOperations, totalNumberOfOperations);
+                                               DLog(@"Fetched %lu CPs of %lu",
+                                                    (unsigned long)numberOfFinishedOperations,
+                                                    (unsigned long)totalNumberOfOperations);
                                            }
                                          completionBlock:^(NSArray *operations) {
                                              
@@ -1358,7 +1175,6 @@
                                                  
                                                  if (!operation.error && responseDict != nil)
                                                  {
-                                                     
                                                      DLog(@"fetched CP %@ has nid %@", [responseDict valueForKey:@"title"], [responseDict valueForKey:@"nid"] );
                                                      
                                                      NSArray *parentCommunitiesTargets = [[responseDict valueForKey:@"og_group_ref"] valueForKey:@"und"];
@@ -1385,11 +1201,8 @@
                                                  else
                                                  {
                                                      DLog(@"Found failed JSON response, failed fetching a CP. Cancel metadata sync");
-                                                     
                                                      errorsFound = YES;
-                                                     
                                                      break;
-                                                     
                                                  }
                                              }
                                              
@@ -1416,14 +1229,13 @@
                                                  }
                                                  
                                              }
-                                             
+  
                                          }];
 }
 
 - (void) checkAllGroupsFetchCompleted
 {
     DLog(@"Checking if all groups completed fetch from server");
-    
     
     if (_lastCommunitiesSyncSuccess &&
         _lastCategoriesSyncSuccess  &&
@@ -1451,9 +1263,7 @@
     {
         //Wait for other fetch operations to complete
         DLog(@"Some group still fetching, skip");
-        
     }
-    
 }
 
 - (void)setGroupHierarchyAndEndMetadataSync:(NSDictionary *)groupsHierarchyDict
@@ -1475,7 +1285,6 @@
     //this also ensure no discrepancy from public exposed hierarchy Dict and current metadata objects
     [self setCurrentGroups];
     
-    
     _updating = NO;
     _lastSyncSuccess = YES;
     
@@ -1491,12 +1300,11 @@
 {
     DLog(@"Storing hierarchy dict to entity relations");
 
-    
     //store CP and Community hierarchy for future access
     //CP 1->* Community
     DLog(@"Forged group tree hierarchy dictionary \n%@", groupsHierarchyDict);
     
-    //STORE CURRENT HIERARCHY TO CORE DATA RELATIONS HERE
+    //STORE CURRENT HIERARCHY TO CORE DATA RELATIONSHIPS HERE
     for (NSString *communityNid in [groupsHierarchyDict allKeys])
     {
         DLog(@"Updating cp childs of community %@", communityNid);
@@ -1508,7 +1316,7 @@
             NSSet *communityChildsNids = [groupsHierarchyDict valueForKey:communityNid];
             NSMutableSet *communityNewChilds = [NSMutableSet set];
             
-            DLog(@"Community %@ going to have %d children", matchingCommunity.title, [communityChildsNids count]);
+            DLog(@"Community %@ going to have %lu children", matchingCommunity.title, (unsigned long)[communityChildsNids count]);
             
             for (NSString *cpNid in communityChildsNids)
             {
@@ -1530,9 +1338,6 @@
     
     DLog(@"Saving core data context");
     [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
-    
-    //FIXME currentGroupsTree should be assigned ONLY from setCurrentGroups
-    //self.currentGroupsTree = groupsHierarchyDict;
 }
 
 - (NSDictionary *)buildHierarchyDictFromEntityRelations
@@ -1551,7 +1356,6 @@
         }
         
         [groupTreeDictionary setObject:childNidSet forKey:[community.nid description]];
-        
     }
     
     DLog(@"Built group tree dictionary from DB \n%@", [groupTreeDictionary description]);
@@ -1577,8 +1381,6 @@
     
     NSSet *poiSet = [group valueForKey:@"pois"];
     NSArray *poiList = [poiSet allObjects];
-    //DLog(@"raw group %@ associated pois",[poiSet description]);
-    
     
     if (poiList != nil && [poiList count])
     {
@@ -1604,8 +1406,6 @@
         if (nid.length > 0)
             [serverCommunitiesGids addObject:nid];
     }
-    //DLog(@"Server gids are %@", serverCommunitiesGids);
-    
    
     //first of all, clean from local store all groups no more on server
     NSArray *tombstonedComm = [PoiCommunity MR_findAll];
@@ -1663,8 +1463,6 @@
         if (nid.length > 0)
             [serverCPGids addObject:nid];
     }
-    //DLog(@"Server gids are %@", serverCPGids);
-    
     
     //first of all, clean from local store all groups no more on server
     NSArray *tombstonedCP = [PoiCulturalProtocol MR_findAll];
@@ -1722,8 +1520,6 @@
         if (tid.length > 0)
             [serverCategoriesGids addObject:tid];
     }
-    //DLog(@"Server gids are %@", serverCategoriesGids);
-    
     
     //first of all, clean from local store all groups no more on server
     NSArray *tombstonedCategories = [PoiCategory MR_findAll];
@@ -1786,7 +1582,6 @@
         poiKeyword.tid = [keyword  valueForKey:@"tid"];
         poiKeyword.uri = [keyword  valueForKey:@"uri"];
     }
-    
     
     ////CONTRIBUTORS
     //since contributors are not related to POIs, we just update local store with server defined contributors.
@@ -1889,9 +1684,10 @@
 - (void)setCurrentGroups
 {
     DLog(@"Updating current groups");
-    
 
+//uncomment this to fill local DB with some debug data (for testing only)
 //#define WANTDUMMYDATA
+    
 #ifdef WANTDUMMYDATA
     //DEBUG DATA SOURCE
     // Setup App with prefilled metadata
@@ -1935,7 +1731,7 @@
     self.currentCommunities = [[PoiCommunity MR_findAllSortedBy:@"title" ascending:YES] copy];
     self.currentCulturalProtocols = [[PoiCulturalProtocol MR_findAllSortedBy:@"title" ascending:YES] copy];
     
-    //FIX 2.5: build local community/CP hierarchy tree from DB
+    //build local community/CP hierarchy tree from DB
     self.currentGroupsTree = [self buildHierarchyDictFromEntityRelations];
     
     //update CMS version, defaults to 2.0
@@ -1964,16 +1760,12 @@
     DLog(@"Validating all pois againsted stored metadata");
     
     //check if user is logged on youtube and if current token is still valid
-    //[self validateYouTubeSession];
     BOOL hasValidYoutubeToken = _youTubeHelper.isAuthValid;
     
-    
     NSArray *storedPois = [Poi MR_findAll];
-   
     
     for (Poi *poi in storedPois)
     {
-        
         NSString *errorMessage = kPoiStatusMissingHeaderText;
         BOOL errorFound = NO;
         
@@ -1983,8 +1775,7 @@
         }
         else
         {
-            
-            //FIX 2.5: search and remove "orphan" communities (with no selected children), no error is reported
+            //search and remove any "orphan" community (with no selected children), no error is reported
             DLog(@"Checking poi %@ for orphan communities", poi.title);
             NSMutableSet *orphanCommunities = [NSMutableSet set];
             for (PoiCommunity *community in poi.communities)
@@ -2017,7 +1808,7 @@
                 poi.communities = [newCommunities copy];
             }
             
-            //FIX 2.5: clean any orphan CPs, could rarely happen if communities are removed from server or permission changed for current user
+            //clean any orphan CPs, could rarely happen if communities are removed from server or permission changed for current user
             //in this case a general alert to review content since metadata changed is showed to user. This will double ensure we don't have any invalid CPs stored in poi.
             //no error is reported, anyway if a poi results without any  communities or CPs after validation, error is reported
             DLog(@"Checking poi %@ for orphan CPs", poi.title);
@@ -2061,18 +1852,16 @@
                 //cultural protocols are required fields, cancel if missing
                 
                 DLog(@"poi %@ validation not passed: no required cultural protocols found", poi.title);
-                //poi.key = kPoiStatusMissingGroup;
                 errorMessage = [NSString stringWithFormat:@"%@\n\n%@", errorMessage, kPoiStatusMissingGroup];
                 errorFound = YES;
             }
             
-            //FIX 2.5: at least 1 community is needed
+            //at least 1 community is needed
             if (![poi.communities count])
             {
                 //at least 1 community is needed, cancel if missing
                 
                 DLog(@"poi %@ validation not passed: at least 1 community is needed", poi.title);
-                //poi.key = kPoiStatusMissingGroup;
                 errorMessage = [NSString stringWithFormat:@"%@\n\n%@", errorMessage, kPoiStatusMissingCommunity];
                 errorFound = YES;
             }
@@ -2081,7 +1870,6 @@
             {
                 //categories are required fields, cancel if missing
                 DLog(@"poi %@ validation not passed: no required categories found", poi.title);
-                //poi.key = kPoiStatusMissingCategories;
                 errorMessage = [NSString stringWithFormat:@"%@\n\n%@", errorMessage, kPoiStatusMissingCategories];
                 errorFound = YES;
             }
@@ -2090,7 +1878,6 @@
             if ([poi.creator length] == 0)
             {
                 DLog(@"poi %@ validation not passed: no creator found",poi.title);
-                //poi.key = kPoiStatusMissingCreator;
                 errorMessage = [NSString stringWithFormat:@"%@\n\n%@", errorMessage, kPoiStatusMissingCreator];
                 errorFound = YES;
             }
@@ -2099,13 +1886,11 @@
                  (poi.creationDate == nil || ![poi.creationDate isKindOfClass:[NSDate class]]))
             {
                 DLog(@"poi %@ validation not passed: no valid creation date found", poi.title);
-                //poi.key = kPoiStatusMissingDate;
                 errorMessage = [NSString stringWithFormat:@"%@\n\n%@", errorMessage, kPoiStatusMissingDate];
                 errorFound = YES;
             }
             
-            
-            //show youtube error only if all other fileds are ok, to avoi confusion and long alert text
+            //show youtube error only if all other fileds are ok, to avoid confusion and long alert text
             if (!errorFound && !hasValidYoutubeToken)
             {
                 NSArray *poiMedias = [poi.media allObjects];
@@ -2115,13 +1900,11 @@
                     if ([media.type isEqualToString:@"video"])
                     {
                         DLog(@"Poi has videos but user is not logged on youtube, mark this poi as not valid");
-                        //poi.key = kPoiStatusNoYouTubeLoginForVideos;
                         errorMessage = kPoiStatusNoYouTubeLoginForVideos;
                         errorFound = YES;
                         break;
                     }
                 }
-                
             }
             
             //check if we found errors and in the case set key accordingly to alert user of issues when editing poi again
@@ -2129,16 +1912,12 @@
             {
                 poi.key = [errorMessage copy];
             }
-            
         }
-        
     }
-    
     
     //save Context
     DLog(@"Saving Context after poi validation");
     [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
-    
 }
 
 
@@ -2147,12 +1926,10 @@
 {
     DLog(@"Upload job started");
     
-    
     self.uploadedPoiList = [NSMutableArray array];
     
     self.uploadDelegate = (UploadProgressViewController *) delegate;
     self.uploadDelegate.poiUploaded = 0;
-    
     
     NSMutableArray *poiListUpload = [[Poi MR_findAll] mutableCopy];
     
@@ -2165,14 +1942,12 @@
             DLog(@"Poi %@ is invalid, removing from upload list", poi.title);
             
             [poiListUpload removeObject:poi];
-            
         }
     }
     
-    //FIX 2.5: setup upload progress delegate *before* actually starting poi upload jobs
+    //setup upload progress delegate *before* actually starting poi upload jobs
     self.uploadDelegate.poiToUpload = [poiListUpload count];
     [self.uploadDelegate updateProgressBar];
-    
     
     //second pass to actually upload pois
     for (Poi *poi in poiListUpload)
@@ -2181,18 +1956,12 @@
         [self uploadPoi:poi];
         
     }
-    
-    //DEBUG
-    //DLog(@"Report success to upload delegate");
-    //[self.uploadDelegate successConfirmed];
-    
 }
 
 
 - (void) uploadMedia:(PoiMedia *)media forPoi:(Poi *)poi
 {
     DLog(@"Uploading media %@ for poi %@", [media.path lastPathComponent], poi.title);
-    
     
     if ([media.type isEqualToString:@"photo"])
     {
@@ -2242,12 +2011,11 @@
                 
                 [self uploadAudioMedia: media];
             }
-    
 }
 
 - (void) createScaldAtomForMedia:(PoiMedia *)media
 {
-    //FIX 2.5: handle scald atom creation for every media (will use obtained sids in upload poi node)
+    //handle scald atom creation for every media (will use obtained sids in upload poi node)
     DLog(@"Creating Scald Atom for media %@", [media.path lastPathComponent]);
     
     //we should have a valid fid for media here, if not, mark media as invalid
@@ -2267,7 +2035,8 @@
         
         //call again upload for this poi: if all media are ok poi upload will start
         //(if not it will trigger next media upload)
-        //FIX 2.5: upload using already obtained CSRF token
+        
+        //upload using already obtained CSRF token
         [self uploadPoiWithCSRFToken:media.parent];
         return;
     }
@@ -2324,8 +2093,7 @@
     
     Poi *poi = media.parent;
     
-    //FIX 2.5: use relative path in ios8
-    //NSString *imagePath = [[media valueForKey:@"path"] description];
+    //use relative path in ios8
     NSString *imagePath = [NSHomeDirectory() stringByAppendingPathComponent:media.path];
     
     NSData *imageData = [NSData dataWithContentsOfFile:imagePath];
@@ -2353,9 +2121,6 @@
     DLog(@"Image original creation date: %@", creationDateString);
     
     
-    //for debug only
-    //DLog(@"base 64 string %@", base64Image);
-    
     [file setObject:base64Image forKey:@"file"];
     
     NSString *basename = [[poi.title componentsSeparatedByCharactersInSet:[[NSCharacterSet alphanumericCharacterSet] invertedSet]] componentsJoinedByString:@""];
@@ -2363,8 +2128,6 @@
     //get resized factor postfix (if present)
     NSString *resizedPostfix = @"";
     NSArray *filenameParts = [[[media.path lastPathComponent] stringByDeletingPathExtension] componentsSeparatedByString:@"_pic"];
-    
-    //DLog(@"filename parts %@", filenameParts);
     
     if ([filenameParts count])
     {
@@ -2377,12 +2140,6 @@
     DLog(@"File to upload new filename: %@", filename);
     
     [file setObject:filename forKey:@"filename"];
-    
-    //DEBUG
-    //NSError *error;
-    //NSData* jsonData = [NSJSONSerialization dataWithJSONObject:file options:NSJSONWritingPrettyPrinted error:&error];
-    //NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    //DLog(@"JSON object:\n%@", jsonString);
     
     NSString *endpoint = [NSString stringWithFormat:@"%@/%@", kMukurtuServerEndpoint, kMukurtuServerBaseFile];
     
@@ -2405,9 +2162,8 @@
                           {
                               //call again upload for this poi: if all media are ok poi upload will start
                               //(if not it will trigger next media upload)
-                              //[self uploadPoi:poi];
                               
-                              //FIX 2.5: upload using already obtained CSRF token
+                              //upload using already obtained CSRF token
                               [self uploadPoiWithCSRFToken:poi];
                           }
                           else
@@ -2428,9 +2184,8 @@
                           
                           //call again upload for this poi: if all media are ok poi upload will start
                           //(if not it will trigger next media upload)
-                          //[self uploadPoi:poi];
                           
-                          //FIX 2.5: upload using already obtained CSRF token
+                          //upload using already obtained CSRF token
                           [self uploadPoiWithCSRFToken:poi];
                       }];
 
@@ -2442,8 +2197,7 @@
     
     Poi *poi = media.parent;
     
-    //FIX 2.5: use relative path in ios8
-    //NSString *audioPath = [[media valueForKey:@"path"] description];
+    //use relative path in ios8
     NSString *audioPath = [NSHomeDirectory() stringByAppendingPathComponent:media.path];
     
     NSData *audioData = [NSData dataWithContentsOfFile:audioPath];
@@ -2451,10 +2205,6 @@
     NSMutableDictionary *file = [[NSMutableDictionary alloc] init];
     
     NSString *base64Audio = [audioData base64EncodedString];
-    
-    
-    //for debug only
-    //DLog(@"base 64 string %@", base64Audio);
     
     [file setObject:base64Audio forKey:@"file"];
     
@@ -2472,7 +2222,6 @@
     DLog(@"uploading filename: %@", filename);
     
     [file setObject:filename forKey:@"filename"];
-    
     
     NSString *endpoint = [NSString stringWithFormat:@"%@/%@", kMukurtuServerEndpoint, kMukurtuServerBaseFile];
     
@@ -2494,9 +2243,8 @@
                           {
                               //call again upload for this poi: if all media are ok poi upload will start
                               //(if not it will trigger next media upload)
-                              //[self uploadPoi:poi];
                               
-                              //FIX 2.5: upload using already obtained CSRF token
+                              //upload using already obtained CSRF token
                               [self uploadPoiWithCSRFToken:poi];
                           }
                           else
@@ -2519,9 +2267,8 @@
                           
                           //call again upload for this poi: if all media are ok poi upload will start
                           //(if not it will trigger next media upload)
-                          //[self uploadPoi:poi];
                           
-                          //FIX 2.5: upload using already obtained CSRF token
+                          //upload using already obtained CSRF token
                           [self uploadPoiWithCSRFToken:poi];
                           
                       }];
@@ -2549,7 +2296,6 @@
         DLog(@"tempFid media key is %@", tempFid);
         media.key = tempFid;
         
-        
         //save Context
         DLog(@"Saving Context after dummy video thumbnail fid added");
         [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
@@ -2572,8 +2318,7 @@
         //key is empty, we need to upload video thumbnail before video
         
         //get big thumbnail path from thumbnail path
-        //FIX 2.5: use relative path in ios8
-        //NSString *imagePath = [ImageSaver getBigThumbPathForThumbnail:media.thumbnail];
+        //use relative path in ios8
         NSString *imagePath = [ImageSaver getBigThumbPathForThumbnail:[NSHomeDirectory() stringByAppendingPathComponent:media.thumbnail]];
         DLog(@"Big thumbnail filename for media is %@",[imagePath lastPathComponent]);
         
@@ -2592,20 +2337,7 @@
         
         [file setObject:filename forKey:@"filename"];
         
-        
-        //add video description
-#warning description not working
-        /*
-        NSString *videoDescription = @"A test description";
-        
-        NSArray *descriptionArray = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:videoDescription forKey:@"value"], @"format", nil];
-        
-        NSDictionary *fieldDescriptionDict = [NSDictionary dictionaryWithObject:descriptionArray forKey:@"und"];
-        [file setObject:fieldDescriptionDict forKey:@"field_media_description"];
-         */
-        
         NSString *endpoint = [NSString stringWithFormat:@"%@/%@", kMukurtuServerEndpoint, kMukurtuServerBaseFile];
-        
         
         [self.httpClient postPath:endpoint
                        parameters:file
@@ -2623,12 +2355,10 @@
                               }
                               
                               //save Context
-#warning should chagen if saving context here is ok
                               DLog(@"Saving Context after image upload success");
                               [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
                               
                               [self uploadVideoForMedia:media];
-                              
                               
                           } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                               DLog(@"Big thumbnail save error: %@ responseString %@",error, operation.responseString);
@@ -2638,20 +2368,16 @@
                               media.key = kPoiStatusInvalid;
                               
                               //save Context
-#warning should chagen if saving context here is ok
                               DLog(@"Saving Context after image upload failure");
                               [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
                               
                               //call again upload for this poi: if all media are ok poi upload will start
                               //(if not it will trigger next media upload)
-                              //[self uploadPoi:poi];
                               
-                              //FIX 2.5: upload using already obtained CSRF token
+                              //upload using already obtained CSRF token
                               [self uploadPoiWithCSRFToken:poi];
-                              
                           }];
     }
-
 }
 
 -(void)uploadVideoForMedia:(PoiMedia *)media
@@ -2687,7 +2413,6 @@
         videoDescription = [media.parent.longdescription copy];
     }
     
-    
     NSString *videoTagsList = @"";
     if ([media.parent.keywordsString length] > 0)
     {
@@ -2696,8 +2421,7 @@
     
     DLog(@"Uploading video with metadata\nname: %@\ndescription: %@\ntags: %@", videoTitle, videoDescription, videoTagsList);
     
-    //[self.youTubeHelper uploadVideoWithTitle:videoTitle description:videoDescription commaSeperatedTags:videoTagsList andMedia:media];
-#warning by now we choose to non disclosure any poi information on youtube, so description has been removed
+    //WARNING: we choose to non disclosure any poi information on youtube, so description has been removed
     [self.youTubeHelper uploadVideoWithTitle:videoTitle description:nil commaSeperatedTags:videoTagsList andMedia:media];
 }
 
@@ -2706,8 +2430,7 @@
 {
     DLog(@"Starting upload poi for %@", poi.title);
     
-    
-     //FIX 2.5: OBTAIN CSRF TOKEN HERE
+    //OBTAIN CSRF TOKEN HERE
     NSString *endpoint = [NSString stringWithFormat:@"%@", kMukurtuServerCSRFTokenRequestEndpoint];
     
     AFHTTPClient *tokenClient = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:self.storedBaseUrl]];
@@ -2730,15 +2453,10 @@
                          DLog(@"Failure: Requesting CSRF Token failed \n%@ responseString %@",error, operation.responseString);
                          DLog(@"error %@, response Headers %@",error, [operation.response allHeaderFields]);
                          
-                         //cancel upload for this poi
-                         //self.uploadDelegate.poiUploaded += 1;
-                         //[self.uploadDelegate updateProgressBar];
-                         
                          //try to upload poi anyway  without token (old drupal services version retro compatibility)
                          DLog(@"Trying to upload without CSRF Token (old drupal services version retro compatibility)");
                          [self uploadPoiWithCSRFToken:poi];
                      }];
-    
 }
 
 - (void) uploadPoiWithCSRFToken:(Poi *)poi
@@ -2748,8 +2466,6 @@
     //check if there are media to upload
     if ([poi.media count])
     {
-#warning by now we upload one media at time, to avoid overload mukurtu server
-        
         DLog(@"Poi has media, check media upload status before uploading");
         for (PoiMedia *media in [poi.media allObjects])
         {
@@ -2820,13 +2536,9 @@
         [self.uploadDelegate updateProgressStatus:[NSString stringWithFormat:@"Uploading Story %@",poi.title]];
     }
     
-    
     if ([poi.key length] > 0)
     {
         DLog(@"poi %@ is not valid, skip it from upload. Error: %@", poi.title, poi.key);
-        
-        //[self.toKeepPoiList addObject:poi];
-        //[self markPoiUploadFinished];
         return;
     }
     
@@ -2856,8 +2568,6 @@
     {
         DLog(@"Dictionary for poi %@ is ok, POST it to server", [poi.title description]);
         
-        //DLog(@"forged node data: %@",[nodeData description]);
-        
         [self.httpClient postPath:[NSString stringWithFormat:@"%@/%@", kMukurtuServerEndpoint, kMukurtuServerBaseNode]
                        parameters:nodeData
                           success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -2884,16 +2594,14 @@
 {
     NSMutableDictionary *nodeData = [NSMutableDictionary dictionary];
     
-    //initi node dictionary
+    //initial node dictionary
     [nodeData setValue:poi.title forKey:@"title"];
-    
     
     //set type
     [nodeData setValue:@"digital_heritage" forKey:@"type"];
     
     //set language (FIXME default to en by now)
     [nodeData setValue:@"en" forKey:@"language"];
-    
     
     //authoring date (for content, different from digital heritage creation date)
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -2979,14 +2687,14 @@
     
     [nodeData setValue:poiGroupsArrayRoot forKey:@"oggroup_fieldset"];
     
-    
     //categories
     //format "field_category":{"en":{"2":"2"}}
     NSMutableDictionary *categoriesTids = [NSMutableDictionary dictionary];
     
     for (NSManagedObject *category in categories)
+    {
         [categoriesTids setValue:[category valueForKey:@"tid"] forKey:[category valueForKey:@"tid"]];
-    //[categoriesTids setValue:@"2" forKey:@"2"];
+    }
     
     NSDictionary *fieldCategoriesDict = [NSDictionary dictionaryWithObject:categoriesTids forKey:@"en"];
     [nodeData setValue:fieldCategoriesDict forKey:@"field_category"];
@@ -3021,7 +2729,6 @@
         [nodeData setValue:fieldKeywordDict forKey:@"field_tags"];
     }
     
-    
     //creator
     //format "field_creator":{"und":"CreatorName"}
     if (poi.creator != nil &&
@@ -3033,12 +2740,8 @@
     else
     {
         DLog(@"poi upload error: no creator found");
-        
-        //        [self.toKeepPoiList addObject:poi];
-        //        [self markPoiUploadFinished];
         return nil;
     }
-    
     
     //contributor (optional)
     //format "field_contributor":{"und":"ContributorName"}
@@ -3131,9 +2834,7 @@
         [nodeData setValue:fieldCoverageDescDict forKey:@"field_coverage_description"];
     }
     
-    
     DLog(@"Forging poi JSON for poi %@ completed", poi.title);
-    //DLog(@"Node details for poi %@:\n%@", poi.title, [nodeData description]);
     
     NSError *error;
     NSData* jsonData = [NSJSONSerialization dataWithJSONObject:nodeData options:NSJSONWritingPrettyPrinted error:&error];
@@ -3148,9 +2849,8 @@
 {
     NSMutableDictionary *nodeData = [NSMutableDictionary dictionary];
     
-    //initi node dictionary
+    //initial node dictionary
     [nodeData setValue:poi.title forKey:@"title"];
-    
     
     //set type
     [nodeData setValue:@"digital_heritage" forKey:@"type"];
@@ -3297,7 +2997,6 @@
     [nodeData setValue:fieldCulturalProtocolsDict forKey:@"field_culturalprotocol"];
     
     
-    
     //categories
     //format "field_category":{"en":{"2":"2"}}
     NSMutableDictionary *categoriesTids = [NSMutableDictionary dictionary];
@@ -3341,7 +3040,6 @@
     
     //content access
     //format "group_content_access":{"und":"1"}
-#warning forcing sharing protocol 0
     poi.sharingProtocol = [NSNumber numberWithInt:kMukurtuSharingProtocolDefault];
     
     if (poi.sharingProtocol != nil &&
@@ -3355,9 +3053,6 @@
     else
     {
         DLog(@"poi upload error: no valid sharing protocol found");
-        
-        //        [self.toKeepPoiList addObject:poi];
-        //        [self markPoiUploadFinished];
         return nil;
     }
     
@@ -3372,9 +3067,6 @@
     else
     {
         DLog(@"poi upload error: no creator found");
-        
-        //        [self.toKeepPoiList addObject:poi];
-        //        [self markPoiUploadFinished];
         return nil;
     }
     
@@ -3439,8 +3131,6 @@
             NSString *addedVideoEmbedString = [descriptionEmbeddedVideos stringByAppendingString:embeddedVideoString];
             descriptionEmbeddedVideos = addedVideoEmbedString;
         }
-        
-        //DLog(@"description embedded videos is %@", descriptionEmbeddedVideos);
     }
     
     if (poi.longdescription != nil &&
@@ -3500,8 +3190,6 @@
     }
     DLog(@"Forging poi JSON for poi %@ completed", poi.title);
     
-    //DLog(@"Node details for poi %@:\n%@", poi.title, [nodeData description]);
-    
     NSError *error;
     NSData* jsonData = [NSJSONSerialization dataWithJSONObject:nodeData options:NSJSONWritingPrettyPrinted error:&error];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
@@ -3557,12 +3245,7 @@
     NSString *message = @"Please provide a valid username, password and base URL for your Mukurtu CMS instance.";
     
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Oops!" message:message delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-    
-    
-    //NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    //if (![defaults boolForKey:kMukurtuMetadataMustUpdateKey])
-    //    [alertView addButtonWithTitle:@"Cancel"];
-    
+
     [alertView show];
 }
 
@@ -3575,10 +3258,6 @@
     NSString *message = @"Your Mukurtu instance is not reachable now. Check base URL and your Internet connection and retry.";
     
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Connection Error!" message:message delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-    
-    //NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    //if (![defaults boolForKey:kMukurtuMetadataMustUpdateKey])
-    //    [alertView addButtonWithTitle:@"Cancel"];
     
     [alertView show];
 }

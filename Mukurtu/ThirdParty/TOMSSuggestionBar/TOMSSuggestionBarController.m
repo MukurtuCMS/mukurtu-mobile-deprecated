@@ -153,7 +153,7 @@
 - (NSString *)cellIdentifierForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString * const cellIdentifier = @"kTOMSSuggestionBarCell";
-    return [cellIdentifier stringByAppendingFormat:@"_%i", indexPath.row];
+    return [cellIdentifier stringByAppendingFormat:@"_%li", (long)indexPath.row];
 }
 
 - (NSPredicate *)defaultPredicate

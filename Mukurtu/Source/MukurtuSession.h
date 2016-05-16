@@ -31,11 +31,9 @@
 @protocol YouTubeStatusReportDelegate <NSObject>
 - (void) reportLoginError:(NSError *)error;
 
-
 @end
 
 @interface MukurtuSession : NSObject <YouTubeHelperDelegate>
-
 
 @property (nonatomic, strong) NSArray *currentCommunities;
 @property (nonatomic, strong) NSArray *currentCulturalProtocols;
@@ -68,7 +66,7 @@
 
 @property (weak, nonatomic) UINavigationController *youTubeSettingsNavigationController;
 
-//FIX 2.5: add support for Open groups hierarchy
+//support for Open groups hierarchy
 @property (strong, nonatomic) NSDictionary *currentGroupsTree;
 
 //youtube helper as singleton component
@@ -96,7 +94,6 @@
 - (BOOL) uploadNeedsYouTubeButNoLogin;
 - (void) resetAllInvalidPoisForVideosAndValidate;
 
-
 - (void) startUploadJobFromDelegate:(NSObject *)delegate;
 
 - (void)setDemoLogin;
@@ -104,6 +101,5 @@
 - (void)cancelUpload;
 
 -(void)addLocalKeyword:(NSString *)localKeyword;
-
 
 @end

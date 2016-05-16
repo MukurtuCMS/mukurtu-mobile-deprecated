@@ -125,7 +125,7 @@
     self.tempPoi.culturalProtocols = [NSSet setWithSet:self.metadataTableViewController.selectedCulturalProtocols];
     self.tempPoi.communities = [NSSet setWithSet:self.metadataTableViewController.selectedCommunities];
     
-    //FIX 2.5: handle contributor and creator as token fields
+    //handle contributor and creator as token fields
     self.tempPoi.creator = self.metadataTableViewController.creatorString;
     self.tempPoi.contributor = self.metadataTableViewController.contributorString;
     
