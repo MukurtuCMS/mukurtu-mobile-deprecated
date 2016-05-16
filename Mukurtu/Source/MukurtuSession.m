@@ -621,8 +621,11 @@
         for (NSHTTPCookie *cookie in cookies)
         {
             DLog(@"check if we must clean cookie name: %@", cookie.name);
-            if ([cookie.name hasPrefix:@"SESS"])
+            if ([cookie.name hasPrefix:@"SESS"] || [cookie.name hasPrefix:@"SSESS"])
+            {
+                DLog(@"deleting cookie %@", [cookie description]);
                 [cookieStorage deleteCookie:cookie];
+            }
         }
     }
 
@@ -642,7 +645,7 @@
     NSArray *cookies = [cookieStorage cookies];
     for (NSHTTPCookie *cookie in cookies) {
         DLog(@"storing cookie name: %@", cookie.name);
-        if ([cookie.name hasPrefix:@"SESS"]) {
+        if ([cookie.name hasPrefix:@"SESS"] || [cookie.name hasPrefix:@"SSESS"]) {
             [bindings setObject:cookie.name forKey:kMukurtuAccountKeychainSessionName];
             [bindings setObject:cookie.value forKey:kMukurtuAccountKeychainSessionValue];
         }
@@ -740,16 +743,33 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         DLog(@"login error: %@ responseString %@",error, [operation.response allHeaderFields]);
         
-        [self showConnectionErrorForErrorCode:error.code];
-        
-        //remember lastLogin was failure for delegate
-        _lastLoginSuccess = NO;
-        
-        if (delegate && [delegate respondsToSelector:selector])
+        if ([self.storedBaseUrl hasPrefix:@"http://"])
         {
-            DLog(@"Reporting login failure to controller %@", [delegate description]);
-            SuppressPerformSelectorLeakWarning([delegate performSelector:selector]);
+            DLog(@"Stored URL %@ not using HTTPS, retry using SSL...", self.storedBaseUrl);
+            
+            self.storedBaseUrl = [self.storedBaseUrl stringByReplacingOccurrencesOfString:@"http://" withString:@"https://" options:0 range:NSMakeRange(0, 7)];
+            
+            DLog(@"\nNEW BASE URL: %@", self.storedBaseUrl);
+            
+            [self loginNewSessionForController:delegate confirmSelector:selector];
         }
+        else
+        {
+            DLog(@"Stored URL %@ already using HTTPS or unknown protocol, avoid retrying, login failed!", self.storedBaseUrl);
+            
+            [self showConnectionErrorForErrorCode:error.code];
+            
+            //remember lastLogin was failure for delegate
+            _lastLoginSuccess = NO;
+            
+            if (delegate && [delegate respondsToSelector:selector])
+            {
+                DLog(@"Reporting login failure to controller %@", [delegate description]);
+                SuppressPerformSelectorLeakWarning([delegate performSelector:selector]);
+            }
+        }
+        
+        
         
     }];
 

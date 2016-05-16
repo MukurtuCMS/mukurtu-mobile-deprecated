@@ -21,6 +21,10 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+//Warning: this uncommenting this will allow not trusted ssl certificates (to accept self signed certificates)
+//#define _AFNETWORKING_ALLOW_INVALID_SSL_CERTIFICATES_ 1
+
 #import <Availability.h>
 
 
