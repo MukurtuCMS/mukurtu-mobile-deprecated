@@ -28,8 +28,6 @@
 #define kMaxLevelMeterTruncateWithAt 280
 
 #define  kTempAudioFilename @"/Documents/__tempAudioFile.m4a"
-//#define  kTempAudioFilename @"/Documents/__tempAudioFile.mp4"
-
 
 @interface RecordAudioViewController ()<AVAudioRecorderDelegate>
 @property (weak, nonatomic) IBOutlet UILabel *statusMessageLabel;
@@ -64,15 +62,12 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
     
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
     {
         self.closeButton.enabled = NO;
         self.closeButton.image = nil;
     }
-    
-    
     
     BOOL inputAvailable = [[AVAudioSession sharedInstance] inputIsAvailable];
     
@@ -90,11 +85,9 @@
     self.levelBarView.frame = levelFrame;
     
     //Create temp audio file
-    //NSString *tempDir = NSTemporaryDirectory();
     NSString *tempDir = NSHomeDirectory();
     NSString *soundFilePath = [tempDir stringByAppendingString: kTempAudioFilename];
     self.tempAudioFilename = soundFilePath;
-
     
     [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryRecord error: nil];
     
@@ -103,7 +96,6 @@
                                     [NSNumber numberWithFloat: 44100], AVSampleRateKey,
                                     [NSNumber numberWithInt: kAudioFormatMPEG4AAC], AVFormatIDKey,
                                     [NSNumber numberWithInt: 1], AVNumberOfChannelsKey,
-                                    
                                     nil];
     
     AVAudioRecorder *newRecorder = [[AVAudioRecorder alloc] initWithURL:[NSURL fileURLWithPath:soundFilePath] settings: recordSettings error: &error];
@@ -123,8 +115,6 @@
         [self.audioRecorder prepareToRecord];
         
     }
-    
-    
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -142,7 +132,6 @@
     }
     
     DLog(@"Current delegate %@", [self.delegate description]);
-    
 }
 
 -(void)updateMeter
@@ -168,20 +157,16 @@
 
 - (void)meterLevelsDidUpdate
 {
-    
     int translatedValue = (self.averagePower / 6 + 11);
     
     translatedValue = MIN(translatedValue, 10);
     translatedValue = MAX(translatedValue, 1);
-    
-    //DLog(@"averagePower %f, peakPower %f, translatedValue 1-10 %i", self.averagePower, self.peakPower, translatedValue);
     
     CGRect levelFrame;
     if (self.audioRecorder.recording)
     {
         levelFrame = CGRectMake(self.levelBarView.frame.origin.x, self.levelBarView.frame.origin.y,
                                 MIN((kMaxLevelMeterWidth / 10)*translatedValue, kMaxLevelMeterTruncateWithAt), self.levelBarView.frame.size.height);
-        
     }
     else
     {
@@ -203,7 +188,6 @@
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (IBAction)closeSettingsButtonPressed:(id)sender
@@ -211,7 +195,6 @@
     DLog(@"Cancel audio recorder button pressed");
     
     [self cleanAndDismiss];
-    
 }
 
 
@@ -219,7 +202,6 @@
 {
     DLog(@"Clean before dismissing audio recorder controller");
     
-#warning alert user before canceling, recorded audio will be lost
     if (self.audioRecorder.recording)
     {
         DLog(@"Audio recorder is still recording, stop it before exit");
@@ -242,10 +224,8 @@
         [self dismissViewControllerAnimated:YES completion:nil];
     }
     
-    
     //report failure to delegate (no message means just cancel)
     [self reportErrorDelegate:nil];
-
 }
 
 - (IBAction)recPauseButtonPressed:(id)sender
@@ -294,7 +274,6 @@
     
     self.audioRecorder.meteringEnabled = NO;
 
-    
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
     {
         DLog(@"We are on ipad, parent should dismiss controller");
@@ -329,17 +308,5 @@
     else
         DLog(@"Error capturing audio, no audioRecordEndedWithError: delegate implemented, send nothing");
 }
-
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

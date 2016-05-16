@@ -39,5 +39,4 @@
 
 - (void) cleanAndDismiss;
 
-
 @end
