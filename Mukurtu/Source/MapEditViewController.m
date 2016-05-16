@@ -30,7 +30,6 @@
 
 #define SHOWPINONMAP
 
-
 @interface MapEditViewController ()<CLLocationManagerDelegate, UISearchBarDelegate, MKMapViewDelegate, UIGestureRecognizerDelegate>
 {
     BOOL _mapUpdatePosition;
@@ -51,8 +50,6 @@
 @property(strong, nonatomic) CLGeocoder *geocoder;
 
 @property(strong, nonatomic) MKPlacemark *lastPlacemarkFound;
-
-
 @end
 
 @implementation MapEditViewController
@@ -69,8 +66,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
-    //FIX 2.5: hides back button on ipad while using nav controller to push map edit view
+
+    //hides back button on ipad while using nav controller to push map edit view
     [self.navigationItem setHidesBackButton:YES];
 
     // start by locating user's current position
@@ -78,7 +75,6 @@
 	self.locationManager.delegate = self;
 	[self.locationManager startUpdatingLocation];
 
-    
     //geocoding
     self.geocoder = [[CLGeocoder alloc] init];
     
@@ -115,7 +111,6 @@
         [self.mapView selectAnnotation:[self.mapView.annotations objectAtIndex:0] animated:YES];
 #endif
         
-        
         [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(self.initialLocationCoordinate, kMapIpadDefaultZoomDistanceMeters, kMapIpadDefaultZoomDistanceMeters) animated:YES];
         
     }
@@ -124,11 +119,13 @@
     
 }
 
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
     return YES;
 }
 
-- (void)didMoveMap:(UIGestureRecognizer*)gestureRecognizer {
+- (void)didMoveMap:(UIGestureRecognizer*)gestureRecognizer
+{
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan){
         DLog(@"map drag/pinch started, enabling geocoding for new center");
         _mapUpdatePosition = YES;
@@ -138,7 +135,6 @@
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 -(void) viewDidDisappear:(BOOL)animated
@@ -154,50 +150,10 @@
     [super viewDidAppear:animated];
     
     self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-    
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
-
-/*
-- (void) centerMapOnPlacemark:(CLPlacemark *)placemark
-{
-    NSString *currentLocationAddress = [self getAddressStringFromPlacemark:placemark];
-    
-    self.addressLabel.text = currentLocationAddress;
-    self.lastPlacemarkFound = placemark;
- 
-#ifdef SHOWPINONMAP
-    [self.mapView removeAnnotations:self.mapView.annotations];
-
-    // add the single annotation to our map
-    PlaceAnnotation *annotation = [[PlaceAnnotation alloc] init];
-    annotation.coordinate = placemark.location.coordinate;
-    annotation.title = placemark.name;
-    annotation.url = nil;
-    [self.mapView addAnnotation:annotation];
-    
-    // we have only one annotation, select it's callout
-    [self.mapView selectAnnotation:[self.mapView.annotations objectAtIndex:0] animated:YES];
-#endif    
- 
-    // center the region around this map item's coordinate
-    _mapUpdatePosition = NO;
-    self.mapView.centerCoordinate = placemark.location.coordinate;
-}
-*/
 
 #pragma mark - UISearchBarDelegate
-
 - (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
 {
     [searchBar resignFirstResponder];
@@ -207,7 +163,6 @@
 {
     [searchBar setShowsCancelButton:YES animated:YES];
 
-    //self.saveButton.enabled = NO;
     self.saveButton.hidden = YES;
 }
 
@@ -215,7 +170,6 @@
 {
     [searchBar setShowsCancelButton:NO animated:YES];
     
-    //self.saveButton.enabled = YES;
     self.saveButton.hidden = NO;
 }
 
@@ -257,8 +211,6 @@
         }
         else
         {
-            //self.places = [response mapItems];
-            
             DLog(@"First matching address found %@", [[response mapItems][0] description]);
             
             self.boundingRegion = response.boundingRegion;
@@ -275,15 +227,10 @@
              
             self.addressLabel.text = currentLocationAddress;
             
-            
-            //self.lastPlacemarkFound = placemark;
             //FIXED bug in empty coordinates after search
             MKPlacemark *mergePlacemark = [[MKPlacemark alloc] initWithCoordinate:self.lastLocationFound.coordinate
                                                                 addressDictionary:placemark.addressDictionary];
-            
-            
             self.lastPlacemarkFound = mergePlacemark;
- 
             
 #ifdef SHOWPINONMAP
             [self.mapView removeAnnotations:self.mapView.annotations];
@@ -302,11 +249,6 @@
             _mapUpdatePosition = NO;
             //self.mapView.centerCoordinate = mapItem.placemark.coordinate;
             self.mapView.centerCoordinate = placemark.location.coordinate;
-            
-            
-            //self.viewAllButton.enabled = self.places != nil ? YES : NO;
-            
-            //[self.tableView reloadData];
         }
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     };
@@ -322,14 +264,12 @@
 }
 
 
-
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
     [searchBar resignFirstResponder];
     
     // check to see if Location Services is enabled, there are two state possibilities:
     // 1) disabled for entire device, 2) disabled just for this app
-    //
     NSString *causeStr = nil;
     
     // check whether location services are enabled on the device
@@ -364,7 +304,6 @@
 
 
 #pragma mark - CLLocationManagerDelegate methods
-
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
     // remember for later the user's current location
@@ -412,7 +351,6 @@
     }
     else
     {
-        //DLog(@"location is an ocean, inland water or other weird area, use raw name");
         currentLocationAddress = [placemark.addressDictionary valueForKey:@"Name"];
     }
     
@@ -426,9 +364,6 @@
     //map have been really moved, not called if just loaded from edit view controller
     if (_mapUpdatePosition)
     {
-        
-        //static int geocodingRetries = kMaxGeocodingRetries;
-        
         //start geocoding and check for address
         [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 
@@ -450,7 +385,6 @@
                      NSString *message = [NSString stringWithFormat:kNewPoiGeocodingGenericError, lastLocation.coordinate.latitude, lastLocation.coordinate.longitude];
                      
                      [self.addressLabel setText:message];
-                     //self.addressLabel.hidden = NO;
                  }
                  else
                      if (placemarks != nil && [placemarks count])
@@ -461,23 +395,7 @@
                          DLog (@"placemark address dictionary %@", [placemark.addressDictionary description]);
                          
                          NSString *currentLocationAddress = [self getAddressStringFromPlacemark:placemark];
-                         /*
-                         NSString *currentLocationAddress;
-                         if ([placemark.addressDictionary valueForKey:@"Country"] != nil)
-                         {
-                             NSMutableDictionary *cleanedDictionary = [NSMutableDictionary dictionaryWithDictionary:placemark.addressDictionary];
-                             
-                             [cleanedDictionary setValue:nil forKey:@"State"];
-                             
-                             currentLocationAddress = [ABCreateStringWithAddressDictionary(cleanedDictionary, YES) stringByReplacingOccurrencesOfString:@"\n" withString:@", "];
-                         }
-                         else
-                         {
-                             DLog(@"location is an ocean, inland water or other weird area, use raw name");
-                             currentLocationAddress = [placemark.addressDictionary valueForKey:@"Name"];
-                         }
-                         */
-                             
+                         
                          DLog(@"Geocode success, current address is %@", currentLocationAddress);
                          [self.addressLabel setText:[NSString stringWithFormat:@"%@", currentLocationAddress]];
                          _geocodingAddressFound = YES;
@@ -485,9 +403,7 @@
                          MKPlacemark *mergePlacemark = [[MKPlacemark alloc] initWithCoordinate:self.lastLocationFound.coordinate
                                                                              addressDictionary:placemark.addressDictionary];
                          
-                         
                          self.lastPlacemarkFound = mergePlacemark;
-                        
                          
 #ifdef SHOWPINONMAP
                          [self.mapView removeAnnotations:self.mapView.annotations];
@@ -503,21 +419,10 @@
                          // we have only one annotation, select it's callout
                          [self.mapView selectAnnotation:[self.mapView.annotations objectAtIndex:0] animated:YES];
 #endif
-                         
-                         //self.addressLabel.hidden = NO;
-                         
-                         //if location accuracy is too low, trick the map view and retry a few times
-                         //geocodingRetries--;
-                         //if (self.lastLocationFound.horizontalAccuracy > kMinGeocodingAccuracy && geocodingRetries > 0)
-                         //{
-                        
-                         //}
                      }
              }];
         }
-
     }
-    
 }
 
 - (IBAction)cancelButtonPressed:(id)sender
@@ -536,6 +441,5 @@
         [self.delegate mapEditDidSavePlacemark:self.lastPlacemarkFound];
 
 }
-
 
 @end
