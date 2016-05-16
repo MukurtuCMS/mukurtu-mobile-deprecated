@@ -35,10 +35,6 @@
 #import "GalleryViewController.h"
 #import "RecordAudioViewController.h"
 
-
-#warning should add a protocol
-#import "IpadRightViewController.h"
-
 #import "MukurtuSession.h"
 
 #import "Poi.h"
@@ -72,11 +68,9 @@
 @property (weak, nonatomic) IBOutlet UIImageView *thumbImageView5;
 
 @property (weak, nonatomic) IBOutlet UIView *mediaGalleryView;
-//@property (strong, nonatomic) GalleryViewController* galleryViewController;
 
 @property (strong, nonatomic) NSMutableArray *tempAddedMedias;
 @property (strong, nonatomic) NSMutableArray *tempRemovedMedias;
-
 
 @property (weak, nonatomic) IBOutlet UITextField *titleTextField;
 @property (weak, nonatomic) IBOutlet UILabel *addressLabel;
@@ -90,12 +84,7 @@
 
 //location copy for exif on camera shoots
 @property (nonatomic, strong) CLLocation *lastExifLocationFound;
-
 @property (strong, nonatomic) CLLocationManager *locationManager;
-
-//@property(strong, nonatomic) RecordAudioViewController *recordAudioViewController;
-
-
 @end
 
 @implementation IphoneCreatePoiGeneralViewController
@@ -122,24 +111,19 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
     
     self.tempAddedMedias = [NSMutableArray array];
     self.tempRemovedMedias = [NSMutableArray array];
     
     self.tempPoi = [Poi MR_createEntity];
     
-    
     if (!self.currentPoi)
     {
-        //self.currentPoi = [Poi createEntity];
-        //self.tempPoi = [Poi createEntity];
         isEditingPoi = NO;
     }
     else
     {
         [self.currentPoi clonePoiTo:self.tempPoi];
-        //[self clonePoi:self.currentPoi toPoi:self.tempPoi];
         DLog(@"temp poi title %@, obj %@", self.tempPoi.title, [self.tempPoi description]);
         DLog(@"current poi obj %@", [self.currentPoi description]);
         isEditingPoi = YES;
@@ -150,10 +134,6 @@
             [self errorAlert:[self.tempPoi.key copy]];
         }
     }
-    
-    //global default values
-    //sharing protocol
-    //self.tempPoi.sharingProtocol =  [NSNumber numberWithInt:kMukurtuSharingProtocolDefault];
     
     if ([self.tempPoi.title length] > 0)
     {
@@ -170,7 +150,7 @@
         self.addressLabel.text = [NSString stringWithFormat:kNewPoiGeocodingGenericError, [self.tempPoi.locationLat doubleValue], [self.tempPoi.locationLong doubleValue]];
     }
     
-    //FIXED bug lost coords when editing poi!
+    //reload last coords when editing poi
     if ([self.currentPoi.locationLat length] > 0 && [self.currentPoi.locationLong length] > 0)
     {
         CLLocation *location = [[CLLocation alloc] initWithLatitude:[self.currentPoi.locationLat floatValue] longitude:[self.currentPoi.locationLong floatValue]];
@@ -184,43 +164,12 @@
     [self initMapView];
     
     addressManuallyEntered = NO;
-
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
-
-//DEBUG
-#ifdef DEBUG
-
-- (void) viewWillDisappear:(BOOL)animated
-{
-    DLog(@"DEBUG View will disappear");
-    
-    [super viewWillDisappear:animated];
-    
-    // DEBUG Show the current contents of the documents folder
-    CFShow((__bridge CFTypeRef)([[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSHomeDirectory() stringByAppendingString:@"/Documents"] error:NULL]));
-
-}
-
-
-- (void) viewWillAppear:(BOOL)animated
-{
-    DLog(@"DEBUG View will Appear");
-    
-    [super viewWillDisappear:animated];
-    
-    
-    // DEBUG Show the current contents of the documents folder
-    CFShow((__bridge CFTypeRef)([[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSHomeDirectory() stringByAppendingString:@"/Documents"] error:NULL]));
-    
-}
-
-#endif
 
 -(void) viewDidAppear:(BOOL)animated
 {
@@ -235,10 +184,8 @@
     DLog(@"Dealloc create poi iphone general data controller");
 }
 
-
-
 //map handling
-//FIX 2.5: added user permission request for location services (only under iOS8)
+//ask user permission for enabling location services (only under iOS8)
 -(void) authorizeLocationServices
 {
     self.locationManager = [[CLLocationManager alloc] init];
@@ -329,24 +276,12 @@
 - (BOOL) isValidCoordinate:(CLLocationCoordinate2D)coordinate
 {
     return (CLLocationCoordinate2DIsValid(coordinate));
-    
-    /*
-     if ((coordinate.longitude < 180) && (coordinate.longitude > -180) &&
-     (coordinate.latitude < 90) && (coordinate.latitude > -90))
-     return YES;
-     else
-     return NO;
-     */
 }
 
 #pragma mark - MapKit methods
 -(void) initMapView
 {
     DLog(@"Init main map");
-    
-    //FIX 2.5: this will be setted after user allows for locations services
-    //self.mapView.showsUserLocation = YES;
-    
     DLog(@"map user location lat:%f long: %f", self.mapView.userLocation.coordinate.latitude, self.mapView.userLocation.coordinate.longitude);
     
     if (isEditingPoi)
@@ -371,21 +306,18 @@
             self.lastLocationFound = self.mapView.userLocation.location;
             DLog(@"Last location saved %@", [self.lastLocationFound description]);
             
-            
             [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(self.mapView.userLocation.coordinate, kMapIpadDefaultZoomDistanceMeters, kMapIpadDefaultZoomDistanceMeters) animated:YES];
             
         }
         else
         {
             //just set zoom level
-            //[self.mapView setVisibleMapRect:MKMapRectWorld];
             [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(self.mapView.centerCoordinate, kMapIpadDefaultZoomDistanceMeters, kMapIpadDefaultZoomDistanceMeters) animated:NO];
             self.addressLabel.hidden = YES;
         }
     }
     
     self.mapView.zoomEnabled = YES;
-    //self.mapView.scrollEnabled = NO;
 }
 
 
@@ -416,18 +348,10 @@
             [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate animated:NO];
         }
         
-        //[self.mainMapView setRegion:MKCoordinateRegionMakeWithDistance(self.mainMapView.userLocation.coordinate, kMapIpadDefaultZoomDistanceMeters, kMapIpadDefaultZoomDistanceMeters) animated:YES];
-        
-        
         if (!self.geocoder.geocoding)
             [self.geocoder reverseGeocodeLocation:self.mapView.userLocation.location
                                 completionHandler:^(NSArray *placemarks, NSError *error)
              {
-                 //DLog(@"geocoder completed with error %@ , placemarks %@", [error description], [placemarks description]);
-                 
-                 //if (self.geocoderActivityIndicator.isAnimating)
-                 //    [self.geocoderActivityIndicator stopAnimating];
-                 
                  if (error != nil)
                  {
                      CLLocation *lastLocation = self.mapView.userLocation.location;
@@ -451,20 +375,16 @@
                          geocodingAddressFound = YES;
                          self.lastPlacemarkFound = placemark;
                          
-                         
                          self.addressLabel.hidden = NO;
                          
                          //if location accuracy is too low, trick the map view and retry a few times
                          geocodingRetries--;
                          if (self.lastLocationFound.horizontalAccuracy > kMinGeocodingAccuracy && geocodingRetries > 0)
                          {
-                             //self.mapView.showsUserLocation = NO;
-                             //self.mapView.showsUserLocation = YES;
                              [self performSelector:@selector(restartMapUserLocationUpdate) withObject:nil afterDelay:1.0];
                          }
                      }
              }];
-        
     }
 }
 
@@ -482,7 +402,6 @@
     }
     else
     {
-        //DLog(@"location is an ocean, inland water or other weird area, use raw name");
         currentLocationAddress = [placemark.addressDictionary valueForKey:@"Name"];
     }
     
@@ -505,15 +424,12 @@
 {
     DLog(@"Save poi message received from child controller");
     
-    
     //check if poi has required data
     NSString *result;
     result = [self poiHasValidMetadata:self.tempPoi];
     
     if ([result isEqualToString:@"OK"])
     {
-        //[self updatePoiData];
-        
         ////Medias, merge changes here
         if ([self.tempRemovedMedias count])
         {
@@ -549,7 +465,6 @@
         [self errorAlert:result];
         [self dismissViewControllerAnimated:YES completion:nil];
     }
-     
 }
 
 
@@ -563,30 +478,20 @@
         DLog(@"Storing temp poi timestamp");
         self.tempPoi.timestamp = [NSDate date];
     }
-   
-#warning overwrite key and disable alert during edit?
-    //reset any error key, will be checked later by validate all poi
     self.tempPoi.key = @"";
 
-    
     //poi title
     DLog(@"updating temp poi title to %@", self.titleTextField.text);
     self.tempPoi.title = self.titleTextField.text;
     
-        
     //address and location
     if (self.lastPlacemarkFound)
     {
         self.tempPoi.formattedAddress = self.addressLabel.text;
     }
 
-    //WARNING following check for valid location not validate manual location entered via edit map. Don't uncomment this!
-    //if ([self isValidLocation:self.lastLocationFound])
-    {
-        self.tempPoi.locationLat = [NSString stringWithFormat:@"%f", (float) self.lastLocationFound.coordinate.latitude];
-        self.tempPoi.locationLong = [NSString stringWithFormat:@"%f", (float) self.lastLocationFound.coordinate.longitude];
-    }
-    
+    self.tempPoi.locationLat = [NSString stringWithFormat:@"%f", (float) self.lastLocationFound.coordinate.latitude];
+    self.tempPoi.locationLong = [NSString stringWithFormat:@"%f", (float) self.lastLocationFound.coordinate.longitude];
 }
 
 - (NSString *)poiHasValidMetadata:(Poi *)poi
@@ -601,8 +506,6 @@
     {
         result = kPoiStatusMissingTitle;
     }
-    
-#warning should check all metadata here
     
     return result;
 }
@@ -627,11 +530,8 @@
                 {
                     DLog(@"Removing temp media");
                     
-                    //[[MukurtuSession sharedSession] deleteMedia:media];
                     [ImageSaver deleteMedia:media];
                 }
-                //DLog(@"Saving core data context");
-                //[[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
             }
             
             if ([self.tempRemovedMedias count])
@@ -649,12 +549,8 @@
                 self.tempPoi.media = unionPoiMedias;
                 
                 DLog(@"current poi resulting medias %@", [self.tempPoi.media description]);
-                
-                //DLog(@"Saving core data context");
-                //[[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
             }
 
-            
             DLog(@"Re-attach medias to current poi and removing from temp poi");
             NSSet *medias = [NSSet setWithSet:self.tempPoi.media];
             self.currentPoi.media = medias;
@@ -686,7 +582,6 @@
             }
         }];
         
-        //[self.delegate createPoiCloseButtonPressed];
         [self dismissViewControllerAnimated:YES completion:nil];
     }
 }
@@ -705,7 +600,6 @@
 	DLog(@"Unwinding to general poi data");
     
     //update temp poi with metadata
-    //[self updatePoiMetadata];
     [self.nextController updatePoiMetadata];
     
 }
@@ -769,14 +663,6 @@
     return YES;
 }
 
-/*
- - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
- {
- return YES;
- 
- }*/
-
-
 #pragma mark Media Handling
 ////Gesture Recognizer
 - (IBAction)takePicture:(UITapGestureRecognizer*)sender {
@@ -788,10 +674,8 @@
     
     DLog(@"Tapped image view tag %d",(int) tappedView.tag);
     
-    
     NSArray *sortDescriptors = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:YES]];
     NSArray *orderedPoiMedias = [self.tempPoi.media sortedArrayUsingDescriptors:sortDescriptors];
-    
     
     if (tappedView.tag < [orderedPoiMedias count])
     {
@@ -808,7 +692,6 @@
         DLog(@"No image for index %d, ignore tap", (int)tappedView.tag);
         
     }
-    
 }
 
 
@@ -844,7 +727,7 @@
                 buttonToUpdate = self.thumbImageView5;
                 break;
                 
-                //just to be sure... ugly, should never reach this
+                //just to be sure...
             default:
                 buttonToUpdate = self.thumbImageView0;
                 break;
@@ -855,19 +738,16 @@
             DLog(@"We have an image for index %d", i);
             
             PoiMedia *media = orderedPoiMedias[i];
-            //UIImage *image = [UIImage imageWithContentsOfFile:[media.thumbnail copy]];
             UIImage *image = [UIImage imageWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:media.thumbnail]];
                         
             [buttonToUpdate setImage:image];
             buttonToUpdate.userInteractionEnabled = YES;
-            
         }
         else
         {
             DLog(@"No image for index %d, resetting placeholder", i);
             
             buttonToUpdate.userInteractionEnabled = NO;
-            //[buttonToUpdate setImage:[UIImage imageNamed:@"background_thumbnail"]];
             [buttonToUpdate setImage:nil];
         }
     }
@@ -884,7 +764,6 @@
     
     RecordAudioViewController *recordAudioViewController = [recordAudioNavigationController.viewControllers firstObject];
     recordAudioViewController.delegate = self;
-    
     
     [self presentViewController:recordAudioNavigationController animated:YES completion:nil];
 }
@@ -914,8 +793,6 @@
     {
         DLog(@"ERROR while saving media file and creating media");
     }
-    
-    //self.recordAudioViewController = nil;
 
     [self updateThumbnailsButtons];
 }
@@ -939,8 +816,6 @@
         [alert show];
         
     }
-    
-    //self.recordAudioViewController = nil;
 }
 
 
@@ -975,7 +850,6 @@
         //if we used camera, save photo also in PhotoAlbum
         if ([picker sourceType] == UIImagePickerControllerSourceTypeCamera)
         {
-            
             UIImage *image = [ImageSaver extractImageAndFixOrientationFromMediaInfo:info];
             
             NSMutableDictionary *metadata = [ImageSaver extractMetadataFromMediaInfo:info forceOrientationUp:YES];
@@ -1007,7 +881,6 @@
             NSData *videoData = [NSData dataWithContentsOfURL:videoURL];
             
             newMedia = [ImageSaver saveVideoToDisk:videoData andCreateMediawithNamePrefix:prefix];
-            
         }
     
     if (newMedia != nil)
@@ -1038,7 +911,6 @@
     
     if ((assetURL = [info objectForKey:UIImagePickerControllerReferenceURL]))
     {
-        
         ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
         [library assetForURL:assetURL
                  resultBlock:^(ALAsset *asset)  {
@@ -1058,7 +930,6 @@
              DLog(@"Failed reading asset metadata, use empty exif data and continue, error: %@", [error description]);
              
              [self writeImageFilePicker:picker FromInfo:info withMetadata:nil];
-             
          }];
     }
     else
@@ -1066,7 +937,6 @@
         DLog(@"No media URL in imagePicker Info, WEIRD! skip exif metadata and continue");
         [self writeImageFilePicker:picker FromInfo:info withMetadata:nil];
     }
-    
 }
 
 -(void) writeImageFilePicker:(UIImagePickerController *)picker FromInfo:(NSDictionary *)info withMetadata:(NSDictionary *)metadata
@@ -1081,14 +951,9 @@
         prefix = [[MukurtuSession sharedSession] storedUsername];
     
     PoiMedia *newMedia;
-    
-    //force orientation up
-    //NSMutableDictionary *fixedMetadata = [[NSMutableDictionary alloc] initWithDictionary:metadata];
-    //[fixedMetadata setImageOrientation:UIImageOrientationUp];
 
     UIImage *image = [ImageSaver extractImageAndFixOrientationFromMediaInfo:info];
  
-    //newMedia = [ImageSaver saveImageToDisk:image withExifMetadata:fixedMetadata andCreateMediawithNamePrefix:prefix];
     newMedia = [ImageSaver saveImageToDisk:image withExifMetadata:metadata andCreateMediawithNamePrefix:prefix];
     
     if (newMedia != nil)
@@ -1104,7 +969,6 @@
     {
         DLog(@"ERROR while saving media file and creating media in async mode");
     }
-    
     
     [self updateThumbnailsButtons];
     
@@ -1125,7 +989,6 @@
             {
                 DLog(@"Adding image from photoroll");
                 [self pickNewMediaSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
-                //[self pickNewMediaSourceType:UIImagePickerControllerSourceTypeSavedPhotosAlbum];
             }
             else
                 if ([buttonTitle isEqualToString:kMukurtuAddMediaSourceButtonCameraPhoto])
@@ -1137,7 +1000,6 @@
                     if ([buttonTitle isEqualToString:kMukurtuAddMediaSourceButtonAlbumVideo])
                     {
                         DLog(@"Adding video from photoroll");
-                        //[self pickNewMediaSourceType:UIImagePickerControllerSourceTypePhotoLibrary wantVideo:YES];
                         [self pickNewMediaSourceType:UIImagePickerControllerSourceTypeSavedPhotosAlbum wantVideo:YES];
                     }
                     else
@@ -1151,13 +1013,11 @@
                             DLog(@"User canceled adding media");
                             
                         }
-            
             break;
             
         default:
             break;
     }
-    
 }
 
 
@@ -1170,7 +1030,6 @@
 
 - (void) pickNewMediaSourceType:(UIImagePickerControllerSourceType)sourceType wantVideo:(BOOL) wantVideo
 {
-    
     UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
     imagePicker.delegate = self;
     imagePicker.modalPresentationStyle = UIModalPresentationFullScreen;
@@ -1182,7 +1041,6 @@
             {
                 //_takingPhoto = YES;
                 imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-#warning ios 7 .0 bug cover status bar in camer view
                 [self presentViewController:imagePicker animated:YES completion:nil];
             }
             else
@@ -1211,7 +1069,6 @@
                 imagePicker.mediaTypes = [[NSArray alloc] initWithObjects: (NSString *)kUTTypeImage, nil];
             }
             
-            //imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
             imagePicker.sourceType = sourceType;
             [self presentViewController:imagePicker animated:YES completion:nil];
         }
@@ -1231,7 +1088,6 @@
         
         if ([picker.mediaTypes count] && [picker.mediaTypes[0] isEqualToString:(NSString *)kUTTypeMovie])
         {
-            
             DLog(@"Showing picker for videos");
             [picker.navigationItem setTitle:@"Videos"];
             viewController.title = @"Videos";
@@ -1286,7 +1142,6 @@
     else
     {
         DLog(@"Poi already has maximum number of media allowed");
-#warning with scrolling gallery add an alert to user asking to remove some media before adding new ones
     }
     
 }
@@ -1296,9 +1151,7 @@
 {
     DLog(@"dismissing media gallery");
     
-    
     [self dismissViewControllerAnimated:YES completion:nil];
-    //self.galleryViewController = nil;
 }
 
 - (void)deleteGalleryMedia:(PoiMedia *)media
@@ -1310,7 +1163,6 @@
     
     DLog(@"delete completed, dismissing media gallery");
     [self dismissViewControllerAnimated:YES completion:nil];
-    //self.galleryViewController = nil;
 }
 
 
@@ -1321,15 +1173,10 @@
     UIStoryboard *sharedStoryboard = [UIStoryboard storyboardWithName:@"sharedUI" bundle:[NSBundle mainBundle]];
     GalleryViewController *galleryViewController = [sharedStoryboard instantiateViewControllerWithIdentifier:@"GalleryViewController"];
 
-    //self.galleryViewController = galleryViewController;
-#warning lazy coding, should use a protocol!!
     galleryViewController.delegate = (IpadRightViewController *) self;
     galleryViewController.visibleMedia = media;
     
-    
     [self presentViewController:galleryViewController animated:YES completion:nil];
-    
-    
 }
 
 
@@ -1344,9 +1191,7 @@
         DLog(@"Removing a media added after edit, delete immediately");
         [self.tempAddedMedias removeObject:media];
         
-        //[[MukurtuSession sharedSession] deleteMedia:media];
         [ImageSaver deleteMedia:media];
-        
     }
     else
     {
@@ -1448,7 +1293,8 @@
             [self.mapView addAnnotation:annotation];
         }
         
-        //restart map updates for exif gps data for new camera shoots, also after manually editing address (lastlocation updated will be disabled by addressManuallyEntered flag)
+        //restart map updates to enable exif gps data for new camera shoots
+        //also needed after manually editing address (lastlocation updated will be disabled by addressManuallyEntered flag)
         self.mapView.showsUserLocation = YES;
     }
     else
@@ -1456,6 +1302,5 @@
     
     [self dismissViewControllerAnimated:YES completion:nil];
 }
-
 
 @end
