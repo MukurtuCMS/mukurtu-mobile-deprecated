@@ -1103,6 +1103,9 @@
     
     DLog(@"temp poi has %d medias", (int) [currentMedias count]);
     
+    //dismiss keyboar if currently editing title
+    [self.view endEditing:YES];
+    
     if ([currentMedias count] < kMukurtuMaxMediaForPoi)
     {
         DLog(@"Adding new media, asking media source with action sheet");

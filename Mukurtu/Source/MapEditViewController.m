@@ -45,6 +45,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *addressLabel;
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
 @property (weak, nonatomic) IBOutlet UIButton *saveButton;
+@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
 
 @property(strong, nonatomic) CLLocation *lastLocationFound;
 @property(strong, nonatomic) CLGeocoder *geocoder;
@@ -77,6 +78,12 @@
 
     //geocoding
     self.geocoder = [[CLGeocoder alloc] init];
+    
+    //dismiss search bar keyboard if touching any control
+    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self.view action:@selector(endEditing:)];
+    [tapGesture setNumberOfTapsRequired:1];
+    [self.view setGestureRecognizers:[NSArray arrayWithObject:tapGesture]];
+    
     
     UIPanGestureRecognizer* panRec = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didMoveMap:)];
     [panRec setDelegate:self];
@@ -161,7 +168,7 @@
 
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
 {
-    [searchBar setShowsCancelButton:YES animated:YES];
+    [searchBar setShowsCancelButton:NO animated:YES];
 
     self.saveButton.hidden = YES;
 }
@@ -364,6 +371,9 @@
     //map have been really moved, not called if just loaded from edit view controller
     if (_mapUpdatePosition)
     {
+        //dismiss keyboard if editing
+        [self.view endEditing:YES];
+        
         //start geocoding and check for address
         [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 
@@ -429,8 +439,15 @@
 {
     DLog(@"Cancel button pressed, ask dismiss map edit view controller");
     
-    if (self.delegate)
-        [self.delegate mapEditDidCancel];
+    if ([self.searchBar isFirstResponder])
+    {
+        [self.view endEditing:YES];
+    }
+    else
+    {
+        if (self.delegate)
+            [self.delegate mapEditDidCancel];
+    }
 }
 
 - (IBAction)saveButtonPressed:(id)sender
