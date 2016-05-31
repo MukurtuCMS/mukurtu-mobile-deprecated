@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14F1605" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="guE-lW-ue2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="guE-lW-ue2">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -162,37 +162,37 @@
                                     <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tc2-UR-fS7" userLabel="Image View 0">
                                         <rect key="frame" x="1" y="7" width="50" height="50"/>
                                         <connections>
-                                            <outletCollection property="gestureRecognizers" destination="nGJ-JC-bha" appends="YES" id="fWV-Zz-C6C"/>
+                                            <outletCollection property="gestureRecognizers" destination="yFd-ix-5uI" appends="YES" id="1qQ-WB-j13"/>
                                         </connections>
                                     </imageView>
                                     <imageView tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Hco-0Q-sRD" userLabel="Image View 1">
                                         <rect key="frame" x="53" y="7" width="50" height="50"/>
                                         <connections>
-                                            <outletCollection property="gestureRecognizers" destination="nGJ-JC-bha" appends="YES" id="zDe-cT-5cK"/>
+                                            <outletCollection property="gestureRecognizers" destination="yFd-ix-5uI" appends="YES" id="9w1-mp-kdH"/>
                                         </connections>
                                     </imageView>
                                     <imageView tag="2" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9ya-7Z-XyF" userLabel="Image View 2">
                                         <rect key="frame" x="107" y="7" width="50" height="50"/>
                                         <connections>
-                                            <outletCollection property="gestureRecognizers" destination="nGJ-JC-bha" appends="YES" id="d8D-dY-LlO"/>
+                                            <outletCollection property="gestureRecognizers" destination="yFd-ix-5uI" appends="YES" id="nxM-jI-s21"/>
                                         </connections>
                                     </imageView>
                                     <imageView tag="3" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VUX-m2-OIb" userLabel="Image View 3">
                                         <rect key="frame" x="161" y="7" width="50" height="50"/>
                                         <connections>
-                                            <outletCollection property="gestureRecognizers" destination="nGJ-JC-bha" appends="YES" id="IgX-uT-7rN"/>
+                                            <outletCollection property="gestureRecognizers" destination="yFd-ix-5uI" appends="YES" id="AgN-eu-oyg"/>
                                         </connections>
                                     </imageView>
                                     <imageView tag="4" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="seL-SV-C1R" userLabel="Image View 4">
                                         <rect key="frame" x="215" y="7" width="50" height="50"/>
                                         <connections>
-                                            <outletCollection property="gestureRecognizers" destination="nGJ-JC-bha" appends="YES" id="w70-je-rgC"/>
+                                            <outletCollection property="gestureRecognizers" destination="yFd-ix-5uI" appends="YES" id="6W4-SS-BoU"/>
                                         </connections>
                                     </imageView>
                                     <imageView tag="5" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HBP-75-cI8" userLabel="Image View 5">
                                         <rect key="frame" x="269" y="7" width="50" height="50"/>
                                         <connections>
-                                            <outletCollection property="gestureRecognizers" destination="nGJ-JC-bha" appends="YES" id="WWI-TX-Hbg"/>
+                                            <outletCollection property="gestureRecognizers" destination="yFd-ix-5uI" appends="YES" id="Xh9-MR-u6X"/>
                                         </connections>
                                     </imageView>
                                 </subviews>
@@ -235,10 +235,10 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lRp-ab-BqP" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="nGJ-JC-bha">
+                <tapGestureRecognizer id="yFd-ix-5uI">
                     <connections>
-                        <action selector="takePicture:" destination="VIM-uJ-137" id="AJl-he-EZn"/>
-                        <outlet property="delegate" destination="VIM-uJ-137" id="OdV-HO-E2i"/>
+                        <action selector="takePicture:" destination="VIM-uJ-137" id="ser-xh-Tzp"/>
+                        <outlet property="delegate" destination="VIM-uJ-137" id="BCT-83-dUL"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
@@ -553,7 +553,7 @@
                                 <rect key="frame" x="0.0" y="22" width="320" height="105"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="AnS-Wl-nj3" id="QYD-OA-8XR">
-                                    <rect key="frame" x="0.0" y="0.0" width="287" height="104"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="287" height="104.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FmB-7C-wAJ" userLabel="View Image Frame">
@@ -580,7 +580,7 @@
                                                 <constraint firstAttribute="height" constant="41" id="ofO-Fs-R5K"/>
                                             </constraints>
                                             <fontDescription key="fontDescription" name="HelveticaNeue-Medium" family="Helvetica Neue" pointSize="16"/>
-                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Created on:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZNW-Dc-Jcc" userLabel="Label - Created on">
@@ -824,7 +824,7 @@
                                 <rect key="frame" x="0.0" y="22" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="DfJ-lI-PSZ" id="JkA-hi-Bi8">
-                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                             </tableViewCell>
