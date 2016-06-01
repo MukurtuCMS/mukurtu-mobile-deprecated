@@ -161,12 +161,6 @@
         NSString *tokenId = [self getTokenIdForString:username];
         [self.creatorTokenField addTokenWithTitle:username representedObject:tokenId];
     }
-    
-    //observe tokenfields frame changes to handle dynamic table rows height
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(tokenFieldFrameChanged:)
-                                                 name:JSTokenFieldFrameDidChangeNotification
-                                               object:nil];
 
     //warning: sharing protocol fixed to default
     selectedSharingProtocol = kMukurtuSharingProtocolDefault;
@@ -243,6 +237,12 @@
         creatorSuggestionBar.font = [UIFont systemFontOfSize:fontSize];
         creatorSuggestionBar.delegate = self;
     }
+    
+    //observe tokenfields frame changes to handle dynamic table rows height
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(tokenFieldFrameChanged:)
+                                                 name:JSTokenFieldFrameDidChangeNotification
+                                               object:nil];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -285,6 +285,9 @@
                 [self.contributorTokenField addTokenWithTitle:contributor representedObject:tokenId];
             }
         }
+        
+        //force frame update to fit new tokens
+        [self.contributorTokenField layoutIfNeeded];
     }
     
     //creator
@@ -309,6 +312,9 @@
                 [self.creatorTokenField addTokenWithTitle:creator representedObject:tokenId];
             }
         }
+        
+        //force frame update to fit new tokens
+        [self.creatorTokenField layoutIfNeeded];
     }
     
     DLog(@"Current poi creation date string: %@, date: %@",[poi.creationDateString copy], [NSDateFormatter localizedStringFromDate:poi.creationDate dateStyle:NSDateFormatterLongStyle timeStyle:NSDateFormatterNoStyle]);
@@ -771,6 +777,9 @@
         case kMukurtuSectionIndexCommunities:
         case kMukurtuSectionIndexCulturalProtocols:
         {
+            //dismiss keyboard
+            [self.view endEditing:YES];
+            
             UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
             
             if (cell.tag == NO)
@@ -954,6 +963,8 @@
     
     [self.creationDateTextField setText:nil];
     [self updateCharCounterLabel:self.creationDateTextField numChar:0];
+    
+    [self.view endEditing:YES];
 }
 
 
@@ -1236,20 +1247,15 @@
     JSTokenField *tokenField = notification.object;
     BOOL wasEditing = [tokenField.textField isFirstResponder];
     
-    //this will reload table rows height (with updated token fields height) _without_ dismissing keyboard
-    //on the contrary, using tableView reloadRowsAtIndexPaths: or reloadSections: will dismiss keyboard automatically
-    //http://stackoverflow.com/questions/5344206/change-uitableview-row-height-without-dismissing-keyboard
-    [self.tableView beginUpdates]; // updates the row heights ...
-    [self.tableView endUpdates]; // ... nothing needed in between
-    
-    if (!wasEditing)
+    if (wasEditing)
     {
-        //if frame changes when not editing, we are adding tokens programmatically when loading a poi
-        //[self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
-        [self.tableView scrollToNearestSelectedRowAtScrollPosition:UITableViewScrollPositionTop animated:NO];
-    }
-    else
-    {
+        //this will reload table rows height (with updated token fields height) _without_ dismissing keyboard
+        //on the contrary, using tableView reloadRowsAtIndexPaths: or reloadSections: will dismiss keyboard automatically
+        //http://stackoverflow.com/questions/5344206/change-uitableview-row-height-without-dismissing-keyboard
+        [self.tableView beginUpdates]; // updates the row heights ...
+        [self.tableView endUpdates]; // ... nothing needed in between
+
+        
         if (tokenField == self.contributorTokenField)
         {
             [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kMukurtuSectionIndexContributor] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
