@@ -18,4 +18,4 @@ of Mukurtu Mobile 2.5 is planned for development. At this time the
 latest release for Android phones and tablets is Mukurtu Mobile 2.0,
 compatible with Mukurtu CMS 1.5.
 
-You can find more information on MukurtuMobile and how to contribute in repository wiki page here <https://github.com/codamatic/MukurtuMobile/wiki>.
+You can find more information on MukurtuMobile and how to contribute in repository wiki page here <https://github.com/MukurtuCMS/mukurtu-mobile/wiki>.
